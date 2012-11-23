@@ -1895,6 +1895,21 @@ public final class Settings {
         public static final String ALWAYS_FINISH_ACTIVITIES = Global.ALWAYS_FINISH_ACTIVITIES;
 
         /**
+         * Volume Overlay Mode, This is behavior of the volume overlay panel
+         * Defaults to 0 - which is simple
+         * @hide
+         */
+        public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
+        /** @hide */
+        public static final int VOLUME_OVERLAY_SINGLE = 0;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDABLE = 1;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDED = 2;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_NONE = 3;
+
+        /**
          * Determines which streams are affected by ringer mode changes. The
          * stream type's bit should be set to 1 if it should be muted when going
          * into an inaudible ringer mode.
@@ -2727,6 +2742,12 @@ public final class Settings {
         public static final String MANUAL_SAFE_MEDIA_VOLUME = "manual_safe_media_volume";
         
         /** 
+         * Boolean value whether to link ringtone and notification volumes
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2837,7 +2858,9 @@ public final class Settings {
             AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT,
             EXPANDED_BRIGHTNESS_MODE,
             SWIPE_FOR_QS,
-            MANUAL_SAFE_MEDIA_VOLUME            
+            MANUAL_SAFE_MEDIA_VOLUME,
+            VOLUME_LINK_NOTIFICATION,
+            MODE_VOLUME_OVERLAY			
         };
 
         // Settings moved to Settings.Secure
