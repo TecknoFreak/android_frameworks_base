@@ -561,22 +561,22 @@ class QuickSettings {
             bluetoothTile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startSettingsActivity(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-                }
-            });
-            if (LONG_PRESS_TOGGLES) {
-                bluetoothTile.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
                         if (mBluetoothAdapter.isEnabled()) {
                             mBluetoothAdapter.disable();
                         } else {
                             mBluetoothAdapter.enable();
                         }
                         bluetoothTile.setPressed(false);
-                        return true;
+                    }
+            });
+            if (LONG_PRESS_TOGGLES) {
+                bluetoothTile.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                    startSettingsActivity(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                    return true;
                     }});
-            }
+                }
             mModel.addBluetoothTile(bluetoothTile, new QuickSettingsModel.RefreshCallback() {
                 @Override
                 public void refreshView(QuickSettingsTileView unused, State state) {
