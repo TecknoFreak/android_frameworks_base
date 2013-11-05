@@ -952,10 +952,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 com.android.internal.R.integer.config_lidNavigationAccessibility);
         mLidControlsSleep = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_lidControlsSleep);
-        mTranslucentDecorEnabled = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_enableTranslucentDecor);
         mBackKillTimeout = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_backKillTimeout);
+        mTranslucentDecorEnabled = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_enableTranslucentDecor);
         readConfigurationDependentBehaviors();
 
         // register for dock events
@@ -2195,11 +2195,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mHandler.post(mScreenshotRunnable);
             }
             return -1;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (Settings.Secure.getInt(mContext.getContentResolver(),
-                    Settings.Secure.KILL_APP_LONGPRESS_BACK, 0) == 1) {
-                if (down && repeatCount == 0) {
-                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
         } else if (keyCode == KeyEvent.KEYCODE_BRIGHTNESS_UP
                 || keyCode == KeyEvent.KEYCODE_BRIGHTNESS_DOWN) {
             if (down) {
@@ -2237,6 +2232,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mContext.sendBroadcastAsUser(intent, UserHandle.CURRENT_OR_SELF);
             }
             return -1;
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (Settings.Secure.getInt(mContext.getContentResolver(),
+                    Settings.Secure.KILL_APP_LONGPRESS_BACK, 0) == 1) {
+                if (down && repeatCount == 0) {
+                    mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
+                }
+            }
         }
 
         // Shortcuts are invoked through Search+key, so intercept those here
@@ -5481,3 +5483,4 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mNavigationBarController.dump(pw, prefix);
     }
 }
+
