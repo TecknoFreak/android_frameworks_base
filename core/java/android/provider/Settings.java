@@ -2610,6 +2610,7 @@ public final class Settings {
         public static final String QUIET_HOURS_START = "quiet_hours_start";
 
         /**
+         * Quick settings tiles to show on status bar
          * Sets when quiet hours end. This is stored in minutes from the start of the day.
          * @hide
          */
@@ -2748,6 +2749,20 @@ public final class Settings {
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
         /**
+         * Quick settings tiles to show on status bar
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_TILES = "quick_settings_tiles";
+
+        /**
+         * Immersive mode global actions switch
+         * 0 = no
+         * 1 = yes
+         * @hide
+         */
+        public static final String IMMERSIVE_MODE = "immersive_mode";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2860,7 +2875,8 @@ public final class Settings {
             SWIPE_FOR_QS,
             MANUAL_SAFE_MEDIA_VOLUME,
             VOLUME_LINK_NOTIFICATION,
-            MODE_VOLUME_OVERLAY			
+            MODE_VOLUME_OVERLAY,
+            IMMERSIVE_MODE			
         };
 
         // Settings moved to Settings.Secure
