@@ -2876,6 +2876,12 @@ public final class Settings {
         public static final String STATUS_BAR_NETWORK_COLOR = "status_bar_network_usage_color";   
  
         /**
+         * Network stats hide if there's no traffic
+         * @hide
+         */
+        public static final String STATUS_BAR_NETWORK_HIDE = "status_bar_network_hide";  
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
