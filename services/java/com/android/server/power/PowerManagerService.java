@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2007 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2007 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.server.power;
 
@@ -69,9 +69,9 @@ import java.util.ArrayList;
 import libcore.util.Objects;
 
 /**
- * The power manager service is responsible for coordinating power management
- * functions on the device.
- */
+* The power manager service is responsible for coordinating power management
+* functions on the device.
+*/
 public final class PowerManagerService extends IPowerManager.Stub
         implements Watchdog.Monitor {
     private static final String TAG = "PowerManagerService";
@@ -116,15 +116,15 @@ public final class PowerManagerService extends IPowerManager.Stub
     // Wakefulness: The device is asleep and can only be awoken by a call to wakeUp().
     // The screen should be off or in the process of being turned off by the display controller.
     private static final int WAKEFULNESS_ASLEEP = 0;
-    // Wakefulness: The device is fully awake.  It can be put to sleep by a call to goToSleep().
+    // Wakefulness: The device is fully awake. It can be put to sleep by a call to goToSleep().
     // When the user activity timeout expires, the device may start napping or go to sleep.
     private static final int WAKEFULNESS_AWAKE = 1;
-    // Wakefulness: The device is napping.  It is deciding whether to dream or go to sleep
-    // but hasn't gotten around to it yet.  It can be awoken by a call to wakeUp(), which
+    // Wakefulness: The device is napping. It is deciding whether to dream or go to sleep
+    // but hasn't gotten around to it yet. It can be awoken by a call to wakeUp(), which
     // ends the nap. User activity may brighten the screen but does not end the nap.
     private static final int WAKEFULNESS_NAPPING = 2;
-    // Wakefulness: The device is dreaming.  It can be awoken by a call to wakeUp(),
-    // which ends the dream.  The device goes to sleep when goToSleep() is called, when
+    // Wakefulness: The device is dreaming. It can be awoken by a call to wakeUp(),
+    // which ends the dream. The device goes to sleep when goToSleep() is called, when
     // the dream ends or when unplugged.
     // User activity may brighten the screen but does not end the dream.
     private static final int WAKEFULNESS_DREAMING = 3;
@@ -151,7 +151,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     private static final int SCREEN_DIM_DURATION = 7 * 1000;
 
     // The maximum screen dim time expressed as a ratio relative to the screen
-    // off timeout.  If the screen off timeout is very short then we want the
+    // off timeout. If the screen off timeout is very short then we want the
     // dim timeout to also be quite short so that most of the time is spent on.
     // Otherwise the user won't get much screen on time before dimming occurs.
     private static final float MAXIMUM_SCREEN_DIM_RATIO = 0.2f;
@@ -227,7 +227,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     // A zero value indicates that the user activity timer has expired.
     private int mUserActivitySummary;
 
-    // The desired display power state.  The actual state may lag behind the
+    // The desired display power state. The actual state may lag behind the
     // requested because it is updated asynchronously by the display power controller.
     private final DisplayPowerRequest mDisplayPowerRequest = new DisplayPowerRequest();
 
@@ -263,7 +263,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     // True if systemReady() has been called.
     private boolean mSystemReady;
 
-    // True if boot completed occurred.  We keep the screen on until this happens.
+    // True if boot completed occurred. We keep the screen on until this happens.
     private boolean mBootCompleted;
 
     // True if the device is plugged into a power source.
@@ -313,8 +313,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     // The screen off timeout setting value in milliseconds.
     private int mScreenOffTimeoutSetting;
 
+    // Slim settings - override config for ElectronBeam
+    // used here to send values to DispLayPowerController handler
+    // from SettingsObserver
+    private int mElectronBeamMode;
+
     // The maximum allowable screen off timeout according to the device
-    // administration policy.  Overrides other settings.
+    // administration policy. Overrides other settings.
     private int mMaximumScreenOffTimeoutFromDeviceAdmin = Integer.MAX_VALUE;
 
     // The stay on while plugged in setting.
@@ -399,9 +404,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Initialize the power manager.
-     * Must be called before any other functions within the power manager are called.
-     */
+* Initialize the power manager.
+* Must be called before any other functions within the power manager are called.
+*/
     public void init(Context context, LightsService ls,
             ActivityManagerService am, BatteryService bs, IBatteryStats bss,
             IAppOpsService appOps, DisplayManagerService dm) {
@@ -421,7 +426,7 @@ public final class PowerManagerService extends IPowerManager.Stub
         // Forcibly turn the screen on at boot so that it is in a known power state.
         // We do this in init() rather than in the constructor because setting the
         // screen state requires a call into surface flinger which then needs to call back
-        // into the activity manager to check permissions.  Unfortunately the
+        // into the activity manager to check permissions. Unfortunately the
         // activity manager is not running when the constructor is called, so we
         // have to defer setting the screen state until this point.
         mDisplayBlanker.unblankAllDisplays();
@@ -515,6 +520,9 @@ public final class PowerManagerService extends IPowerManager.Stub
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.AUTO_BRIGHTNESS_RESPONSIVENESS),
                     false, mSettingsObserver, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SYSTEM_POWER_CRT_MODE),
+                    false, mSettingsObserver, UserHandle.USER_ALL);
 
             // Go.
             readConfigurationLocked();
@@ -564,6 +572,11 @@ public final class PowerManagerService extends IPowerManager.Stub
         mWakeUpWhenPluggedOrUnpluggedSetting = Settings.Global.getInt(resolver,
                 Settings.Global.WAKE_WHEN_PLUGGED_OR_UNPLUGGED,
                 (mWakeUpWhenPluggedOrUnpluggedConfig ? 1 : 0));
+
+        mElectronBeamMode = Settings.System.getIntForUser(resolver,
+                Settings.System.SYSTEM_POWER_CRT_MODE,
+                1, UserHandle.USER_CURRENT);
+
 
         final int oldScreenBrightnessSetting = mScreenBrightnessSetting;
         mScreenBrightnessSetting = Settings.System.getIntForUser(resolver,
@@ -649,7 +662,7 @@ public final class PowerManagerService extends IPowerManager.Stub
             if (index >= 0) {
                 wakeLock = mWakeLocks.get(index);
                 if (!wakeLock.hasSameProperties(flags, tag, ws, uid, pid)) {
-                    // Update existing wake lock.  This shouldn't happen but is harmless.
+                    // Update existing wake lock. This shouldn't happen but is harmless.
                     notifyWakeLockReleasedLocked(wakeLock);
                     wakeLock.updateProperties(flags, tag, packageName, ws, uid, pid);
                     notifyWakeLockAcquiredLocked(wakeLock);
@@ -875,14 +888,14 @@ public final class PowerManagerService extends IPowerManager.Stub
         if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER)
                 != PackageManager.PERMISSION_GRANTED) {
             // Once upon a time applications could call userActivity().
-            // Now we require the DEVICE_POWER permission.  Log a warning and ignore the
+            // Now we require the DEVICE_POWER permission. Log a warning and ignore the
             // request instead of throwing a SecurityException so we don't break old apps.
             synchronized (mLock) {
                 if (now >= mLastWarningAboutUserActivityPermission + (5 * 60 * 1000)) {
                     mLastWarningAboutUserActivityPermission = now;
                     Slog.w(TAG, "Ignoring call to PowerManager.userActivity() because the "
-                            + "caller does not have DEVICE_POWER permission.  "
-                            + "Please fix your app!  "
+                            + "caller does not have DEVICE_POWER permission. "
+                            + "Please fix your app! "
                             + " pid=" + Binder.getCallingPid()
                             + " uid=" + Binder.getCallingUid());
                 }
@@ -1130,13 +1143,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the global power state based on dirty bits recorded in mDirty.
-     *
-     * This is the main function that performs power state transitions.
-     * We centralize them here so that we can recompute the power state completely
-     * each time something important changes, and ensure that we do it the same
-     * way each time.  The point is to gather all of the transition logic here.
-     */
+* Updates the global power state based on dirty bits recorded in mDirty.
+*
+* This is the main function that performs power state transitions.
+* We centralize them here so that we can recompute the power state completely
+* each time something important changes, and ensure that we do it the same
+* way each time. The point is to gather all of the transition logic here.
+*/
     private void updatePowerStateLocked() {
         if (!mSystemReady || mDirty == 0) {
             return;
@@ -1190,9 +1203,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the value of mIsPowered.
-     * Sets DIRTY_IS_POWERED if a change occurred.
-     */
+* Updates the value of mIsPowered.
+* Sets DIRTY_IS_POWERED if a change occurred.
+*/
     private void updateIsPoweredLocked(int dirty) {
         if ((dirty & DIRTY_BATTERY_STATE) != 0) {
             final boolean wasPowered = mIsPowered;
@@ -1272,9 +1285,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the value of mStayOn.
-     * Sets DIRTY_STAY_ON if a change occurred.
-     */
+* Updates the value of mStayOn.
+* Sets DIRTY_STAY_ON if a change occurred.
+*/
     private void updateStayOnLocked(int dirty) {
         if ((dirty & (DIRTY_BATTERY_STATE | DIRTY_SETTINGS)) != 0) {
             final boolean wasStayOn = mStayOn;
@@ -1292,11 +1305,11 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the value of mWakeLockSummary to summarize the state of all active wake locks.
-     * Note that most wake-locks are ignored when the system is asleep.
-     *
-     * This function must have no other side-effects.
-     */
+* Updates the value of mWakeLockSummary to summarize the state of all active wake locks.
+* Note that most wake-locks are ignored when the system is asleep.
+*
+* This function must have no other side-effects.
+*/
     @SuppressWarnings("deprecation")
     private void updateWakeLockSummaryLocked(int dirty) {
         if ((dirty & (DIRTY_WAKE_LOCKS | DIRTY_WAKEFULNESS)) != 0) {
@@ -1351,12 +1364,12 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the value of mUserActivitySummary to summarize the user requested
-     * state of the system such as whether the screen should be bright or dim.
-     * Note that user activity is ignored when the system is asleep.
-     *
-     * This function must have no other side-effects.
-     */
+* Updates the value of mUserActivitySummary to summarize the user requested
+* state of the system such as whether the screen should be bright or dim.
+* Note that user activity is ignored when the system is asleep.
+*
+* This function must have no other side-effects.
+*/
     private void updateUserActivitySummaryLocked(long now, int dirty) {
         // Update the status of the user activity timeout timer.
         if ((dirty & (DIRTY_USER_ACTIVITY | DIRTY_WAKEFULNESS | DIRTY_SETTINGS)) != 0) {
@@ -1410,13 +1423,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Called when a user activity timeout has occurred.
-     * Simply indicates that something about user activity has changed so that the new
-     * state can be recomputed when the power state is updated.
-     *
-     * This function must have no other side-effects besides setting the dirty
-     * bit and calling update power state.  Wakefulness transitions are handled elsewhere.
-     */
+* Called when a user activity timeout has occurred.
+* Simply indicates that something about user activity has changed so that the new
+* state can be recomputed when the power state is updated.
+*
+* This function must have no other side-effects besides setting the dirty
+* bit and calling update power state. Wakefulness transitions are handled elsewhere.
+*/
     private void handleUserActivityTimeout() { // runs on handler thread
         synchronized (mLock) {
             if (DEBUG_SPEW) {
@@ -1445,14 +1458,14 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the wakefulness of the device.
-     *
-     * This is the function that decides whether the device should start napping
-     * based on the current wake locks and user activity state.  It may modify mDirty
-     * if the wakefulness changes.
-     *
-     * Returns true if the wakefulness changed and we need to restart power state calculation.
-     */
+* Updates the wakefulness of the device.
+*
+* This is the function that decides whether the device should start napping
+* based on the current wake locks and user activity state. It may modify mDirty
+* if the wakefulness changes.
+*
+* Returns true if the wakefulness changed and we need to restart power state calculation.
+*/
     private boolean updateWakefulnessLocked(int dirty) {
         boolean changed = false;
         if ((dirty & (DIRTY_WAKE_LOCKS | DIRTY_USER_ACTIVITY | DIRTY_BOOT_COMPLETED
@@ -1475,9 +1488,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Returns true if the device should automatically nap and start dreaming when the user
-     * activity timeout has expired and it's bedtime.
-     */
+* Returns true if the device should automatically nap and start dreaming when the user
+* activity timeout has expired and it's bedtime.
+*/
     private boolean shouldNapAtBedTimeLocked() {
         return mDreamsActivateOnSleepSetting
                 || (mDreamsActivateOnDockSetting
@@ -1485,22 +1498,22 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Returns true if the device should go to sleep now.
-     * Also used when exiting a dream to determine whether we should go back
-     * to being fully awake or else go to sleep for good.
-     */
+* Returns true if the device should go to sleep now.
+* Also used when exiting a dream to determine whether we should go back
+* to being fully awake or else go to sleep for good.
+*/
     private boolean isItBedTimeYetLocked() {
         return mBootCompleted && !isBeingKeptAwakeLocked();
     }
 
     /**
-     * Returns true if the device is being kept awake by a wake lock, user activity
-     * or the stay on while powered setting.  We also keep the phone awake when
-     * the proximity sensor returns a positive result so that the device does not
-     * lock while in a phone call.  This function only controls whether the device
-     * will go to sleep or dream which is independent of whether it will be allowed
-     * to suspend.
-     */
+* Returns true if the device is being kept awake by a wake lock, user activity
+* or the stay on while powered setting. We also keep the phone awake when
+* the proximity sensor returns a positive result so that the device does not
+* lock while in a phone call. This function only controls whether the device
+* will go to sleep or dream which is independent of whether it will be allowed
+* to suspend.
+*/
     private boolean isBeingKeptAwakeLocked() {
         return mStayOn
                 || mProximityPositive
@@ -1510,8 +1523,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Determines whether to post a message to the sandman to update the dream state.
-     */
+* Determines whether to post a message to the sandman to update the dream state.
+*/
     private void updateDreamLocked(int dirty) {
         if ((dirty & (DIRTY_WAKEFULNESS
                 | DIRTY_USER_ACTIVITY
@@ -1536,12 +1549,12 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Called when the device enters or exits a napping or dreaming state.
-     *
-     * We do this asynchronously because we must call out of the power manager to start
-     * the dream and we don't want to hold our lock while doing so.  There is a risk that
-     * the device will wake or go to sleep in the meantime so we have to handle that case.
-     */
+* Called when the device enters or exits a napping or dreaming state.
+*
+* We do this asynchronously because we must call out of the power manager to start
+* the dream and we don't want to hold our lock while doing so. There is a risk that
+* the device will wake or go to sleep in the meantime so we have to handle that case.
+*/
     private void handleSandman() { // runs on handler thread
         // Handle preconditions.
         boolean startDreaming = false;
@@ -1588,9 +1601,9 @@ public final class PowerManagerService extends IPowerManager.Stub
                         // to be draining faster than it is charging then stop dreaming
                         // and go to sleep.
                         Slog.i(TAG, "Stopping dream because the battery appears to "
-                                + "be draining faster than it is charging.  "
+                                + "be draining faster than it is charging. "
                                 + "Battery level when dream started: "
-                                + mBatteryLevelWhenDreamStarted + "%.  "
+                                + mBatteryLevelWhenDreamStarted + "%. "
                                 + "Battery level now: " + mBatteryLevel + "%.");
                     } else {
                         continueDreaming = true;
@@ -1614,9 +1627,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Returns true if the device is allowed to dream in its current state
-     * assuming that it is currently napping or dreaming.
-     */
+* Returns true if the device is allowed to dream in its current state
+* assuming that it is currently napping or dreaming.
+*/
     private boolean canDreamLocked() {
         return mDreamsSupportedConfig
                 && mDreamsEnabledSetting
@@ -1626,8 +1639,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Called when a dream is ending to figure out what to do next.
-     */
+* Called when a dream is ending to figure out what to do next.
+*/
     private void handleDreamFinishedLocked() {
         if (mWakefulness == WAKEFULNESS_NAPPING
                 || mWakefulness == WAKEFULNESS_DREAMING) {
@@ -1650,13 +1663,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the display power state asynchronously.
-     * When the update is finished, mDisplayReady will be set to true.  The display
-     * controller posts a message to tell us when the actual display power state
-     * has been updated so we come back here to double-check and finish up.
-     *
-     * This function recalculates the display power state each time.
-     */
+* Updates the display power state asynchronously.
+* When the update is finished, mDisplayReady will be set to true. The display
+* controller posts a message to tell us when the actual display power state
+* has been updated so we come back here to double-check and finish up.
+*
+* This function recalculates the display power state each time.
+*/
     private void updateDisplayPowerStateLocked(int dirty) {
         if ((dirty & (DIRTY_WAKE_LOCKS | DIRTY_USER_ACTIVITY | DIRTY_WAKEFULNESS
                 | DIRTY_ACTUAL_DISPLAY_POWER_STATE_UPDATED | DIRTY_BOOT_COMPLETED
@@ -1710,6 +1723,8 @@ public final class PowerManagerService extends IPowerManager.Stub
             mDisplayPowerRequest.useProximitySensor = shouldUseProximitySensorLocked();
 
             mDisplayPowerRequest.blockScreenOn = mScreenOnBlocker.isHeld();
+
+            mDisplayPowerRequest.electronBeamMode = mElectronBeamMode;
 
             mDisplayPowerRequest.responsitivityFactor = mAutoBrightnessResponsitivityFactor;
 
@@ -1787,10 +1802,10 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Updates the suspend blocker that keeps the CPU alive.
-     *
-     * This function must have no other side-effects.
-     */
+* Updates the suspend blocker that keeps the CPU alive.
+*
+* This function must have no other side-effects.
+*/
     private void updateSuspendBlockerLocked() {
         final boolean needWakeLockSuspendBlocker = ((mWakeLockSummary & WAKE_LOCK_CPU) != 0);
         final boolean needDisplaySuspendBlocker = needDisplaySuspendBlocker();
@@ -1817,9 +1832,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Return true if we must keep a suspend blocker active on behalf of the display.
-     * We do so if the screen is on or is in transition between states.
-     */
+* Return true if we must keep a suspend blocker active on behalf of the display.
+* We do so if the screen is on or is in transition between states.
+*/
     private boolean needDisplaySuspendBlocker() {
         if (!mDisplayReady) {
             return true;
@@ -1892,12 +1907,12 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Reboots the device.
-     *
-     * @param confirm If true, shows a reboot confirmation dialog.
-     * @param reason The reason for the reboot, or null if none.
-     * @param wait If true, this call waits for the reboot to complete and does not return.
-     */
+* Reboots the device.
+*
+* @param confirm If true, shows a reboot confirmation dialog.
+* @param reason The reason for the reboot, or null if none.
+* @param wait If true, this call waits for the reboot to complete and does not return.
+*/
     @Override // Binder call
     public void reboot(boolean confirm, String reason, boolean wait) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.REBOOT, null);
@@ -1911,11 +1926,11 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Shuts down the device.
-     *
-     * @param confirm If true, shows a shutdown confirmation dialog.
-     * @param wait If true, this call waits for the shutdown to complete and does not return.
-     */
+* Shuts down the device.
+*
+* @param confirm If true, shows a shutdown confirmation dialog.
+* @param wait If true, this call waits for the shutdown to complete and does not return.
+*/
     @Override // Binder call
     public void shutdown(boolean confirm, boolean wait) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.REBOOT, null);
@@ -1966,9 +1981,9 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Crash the runtime (causing a complete restart of the Android framework).
-     * Requires REBOOT permission.  Mostly for testing.  Should not return.
-     */
+* Crash the runtime (causing a complete restart of the Android framework).
+* Requires REBOOT permission. Mostly for testing. Should not return.
+*/
     @Override // Binder call
     public void crash(String message) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.REBOOT, null);
@@ -1997,18 +2012,18 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Set the setting that determines whether the device stays on when plugged in.
-     * The argument is a bit string, with each bit specifying a power source that,
-     * when the device is connected to that source, causes the device to stay on.
-     * See {@link android.os.BatteryManager} for the list of power sources that
-     * can be specified. Current values include {@link android.os.BatteryManager#BATTERY_PLUGGED_AC}
-     * and {@link android.os.BatteryManager#BATTERY_PLUGGED_USB}
-     *
-     * Used by "adb shell svc power stayon ..."
-     *
-     * @param val an {@code int} containing the bits that specify which power sources
-     * should cause the device to stay on.
-     */
+* Set the setting that determines whether the device stays on when plugged in.
+* The argument is a bit string, with each bit specifying a power source that,
+* when the device is connected to that source, causes the device to stay on.
+* See {@link android.os.BatteryManager} for the list of power sources that
+* can be specified. Current values include {@link android.os.BatteryManager#BATTERY_PLUGGED_AC}
+* and {@link android.os.BatteryManager#BATTERY_PLUGGED_USB}
+*
+* Used by "adb shell svc power stayon ..."
+*
+* @param val an {@code int} containing the bits that specify which power sources
+* should cause the device to stay on.
+*/
     @Override // Binder call
     public void setStayOnSetting(int val) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.WRITE_SETTINGS, null);
@@ -2027,10 +2042,10 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by device administration to set the maximum screen off timeout.
-     *
-     * This method must only be called by the device administration policy manager.
-     */
+* Used by device administration to set the maximum screen off timeout.
+*
+* This method must only be called by the device administration policy manager.
+*/
     @Override // Binder call
     public void setMaximumScreenOffTimeoutFromDeviceAdmin(int timeMs) {
         final long ident = Binder.clearCallingIdentity();
@@ -2055,8 +2070,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the phone application to make the attention LED flash when ringing.
-     */
+* Used by the phone application to make the attention LED flash when ringing.
+*/
     @Override // Binder call
     public void setAttentionLight(boolean on, int color) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
@@ -2083,8 +2098,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the Watchdog.
-     */
+* Used by the Watchdog.
+*/
     public long timeSinceScreenWasLastOn() {
         synchronized (mLock) {
             if (mDisplayPowerRequest.screenState != DisplayPowerRequest.SCREEN_STATE_OFF) {
@@ -2095,13 +2110,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the window manager to override the screen brightness based on the
-     * current foreground activity.
-     *
-     * This method must only be called by the window manager.
-     *
-     * @param brightness The overridden brightness, or -1 to disable the override.
-     */
+* Used by the window manager to override the screen brightness based on the
+* current foreground activity.
+*
+* This method must only be called by the window manager.
+*
+* @param brightness The overridden brightness, or -1 to disable the override.
+*/
     public void setScreenBrightnessOverrideFromWindowManager(int brightness) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
 
@@ -2124,13 +2139,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the window manager to override the button brightness based on the
-     * current foreground activity.
-     *
-     * This method must only be called by the window manager.
-     *
-     * @param brightness The overridden brightness, or -1 to disable the override.
-     */
+* Used by the window manager to override the button brightness based on the
+* current foreground activity.
+*
+* This method must only be called by the window manager.
+*
+* @param brightness The overridden brightness, or -1 to disable the override.
+*/
     public void setButtonBrightnessOverrideFromWindowManager(int brightness) {
         // Do nothing.
         // Button lights are not currently supported in the new implementation.
@@ -2138,14 +2153,14 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the window manager to override the user activity timeout based on the
-     * current foreground activity.  It can only be used to make the timeout shorter
-     * than usual, not longer.
-     *
-     * This method must only be called by the window manager.
-     *
-     * @param timeoutMillis The overridden timeout, or -1 to disable the override.
-     */
+* Used by the window manager to override the user activity timeout based on the
+* current foreground activity. It can only be used to make the timeout shorter
+* than usual, not longer.
+*
+* This method must only be called by the window manager.
+*
+* @param timeoutMillis The overridden timeout, or -1 to disable the override.
+*/
     public void setUserActivityTimeoutOverrideFromWindowManager(long timeoutMillis) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
 
@@ -2168,17 +2183,17 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the settings application and brightness control widgets to
-     * temporarily override the current screen brightness setting so that the
-     * user can observe the effect of an intended settings change without applying
-     * it immediately.
-     *
-     * The override will be canceled when the setting value is next updated.
-     *
-     * @param brightness The overridden brightness.
-     *
-     * @see android.provider.Settings.System#SCREEN_BRIGHTNESS
-     */
+* Used by the settings application and brightness control widgets to
+* temporarily override the current screen brightness setting so that the
+* user can observe the effect of an intended settings change without applying
+* it immediately.
+*
+* The override will be canceled when the setting value is next updated.
+*
+* @param brightness The overridden brightness.
+*
+* @see android.provider.Settings.System#SCREEN_BRIGHTNESS
+*/
     @Override // Binder call
     public void setTemporaryScreenBrightnessSettingOverride(int brightness) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
@@ -2202,17 +2217,17 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Used by the settings application and brightness control widgets to
-     * temporarily override the current screen auto-brightness adjustment setting so that the
-     * user can observe the effect of an intended settings change without applying
-     * it immediately.
-     *
-     * The override will be canceled when the setting value is next updated.
-     *
-     * @param adj The overridden brightness, or Float.NaN to disable the override.
-     *
-     * @see Settings.System#SCREEN_AUTO_BRIGHTNESS_ADJ
-     */
+* Used by the settings application and brightness control widgets to
+* temporarily override the current screen auto-brightness adjustment setting so that the
+* user can observe the effect of an intended settings change without applying
+* it immediately.
+*
+* The override will be canceled when the setting value is next updated.
+*
+* @param adj The overridden brightness, or Float.NaN to disable the override.
+*
+* @see Settings.System#SCREEN_AUTO_BRIGHTNESS_ADJ
+*/
     @Override // Binder call
     public void setTemporaryScreenAutoBrightnessAdjustmentSettingOverride(float adj) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
@@ -2238,20 +2253,20 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Low-level function turn the device off immediately, without trying
-     * to be clean.  Most people should use {@link ShutdownThread} for a clean shutdown.
-     */
+* Low-level function turn the device off immediately, without trying
+* to be clean. Most people should use {@link ShutdownThread} for a clean shutdown.
+*/
     public static void lowLevelShutdown() {
         SystemProperties.set("sys.powerctl", "shutdown");
     }
 
     /**
-     * Low-level function to reboot the device. On success, this function
-     * doesn't return. If more than 5 seconds passes from the time,
-     * a reboot is requested, this method returns.
-     *
-     * @param reason code to pass to the kernel (e.g. "recovery"), or null.
-     */
+* Low-level function to reboot the device. On success, this function
+* doesn't return. If more than 5 seconds passes from the time,
+* a reboot is requested, this method returns.
+*
+* @param reason code to pass to the kernel (e.g. "recovery"), or null.
+*/
     public static void lowLevelReboot(String reason) {
         if (reason == null) {
             reason = "";
@@ -2287,69 +2302,69 @@ public final class PowerManagerService extends IPowerManager.Stub
         final WirelessChargerDetector wcd;
         synchronized (mLock) {
             pw.println("Power Manager State:");
-            pw.println("  mDirty=0x" + Integer.toHexString(mDirty));
-            pw.println("  mWakefulness=" + wakefulnessToString(mWakefulness));
-            pw.println("  mIsPowered=" + mIsPowered);
-            pw.println("  mPlugType=" + mPlugType);
-            pw.println("  mBatteryLevel=" + mBatteryLevel);
-            pw.println("  mBatteryLevelWhenDreamStarted=" + mBatteryLevelWhenDreamStarted);
-            pw.println("  mDockState=" + mDockState);
-            pw.println("  mStayOn=" + mStayOn);
-            pw.println("  mProximityPositive=" + mProximityPositive);
-            pw.println("  mBootCompleted=" + mBootCompleted);
-            pw.println("  mSystemReady=" + mSystemReady);
-            pw.println("  mWakeLockSummary=0x" + Integer.toHexString(mWakeLockSummary));
-            pw.println("  mUserActivitySummary=0x" + Integer.toHexString(mUserActivitySummary));
-            pw.println("  mRequestWaitForNegativeProximity=" + mRequestWaitForNegativeProximity);
-            pw.println("  mSandmanScheduled=" + mSandmanScheduled);
-            pw.println("  mLastWakeTime=" + TimeUtils.formatUptime(mLastWakeTime));
-            pw.println("  mLastSleepTime=" + TimeUtils.formatUptime(mLastSleepTime));
-            pw.println("  mSendWakeUpFinishedNotificationWhenReady="
+            pw.println(" mDirty=0x" + Integer.toHexString(mDirty));
+            pw.println(" mWakefulness=" + wakefulnessToString(mWakefulness));
+            pw.println(" mIsPowered=" + mIsPowered);
+            pw.println(" mPlugType=" + mPlugType);
+            pw.println(" mBatteryLevel=" + mBatteryLevel);
+            pw.println(" mBatteryLevelWhenDreamStarted=" + mBatteryLevelWhenDreamStarted);
+            pw.println(" mDockState=" + mDockState);
+            pw.println(" mStayOn=" + mStayOn);
+            pw.println(" mProximityPositive=" + mProximityPositive);
+            pw.println(" mBootCompleted=" + mBootCompleted);
+            pw.println(" mSystemReady=" + mSystemReady);
+            pw.println(" mWakeLockSummary=0x" + Integer.toHexString(mWakeLockSummary));
+            pw.println(" mUserActivitySummary=0x" + Integer.toHexString(mUserActivitySummary));
+            pw.println(" mRequestWaitForNegativeProximity=" + mRequestWaitForNegativeProximity);
+            pw.println(" mSandmanScheduled=" + mSandmanScheduled);
+            pw.println(" mLastWakeTime=" + TimeUtils.formatUptime(mLastWakeTime));
+            pw.println(" mLastSleepTime=" + TimeUtils.formatUptime(mLastSleepTime));
+            pw.println(" mSendWakeUpFinishedNotificationWhenReady="
                     + mSendWakeUpFinishedNotificationWhenReady);
-            pw.println("  mSendGoToSleepFinishedNotificationWhenReady="
+            pw.println(" mSendGoToSleepFinishedNotificationWhenReady="
                     + mSendGoToSleepFinishedNotificationWhenReady);
-            pw.println("  mLastUserActivityTime=" + TimeUtils.formatUptime(mLastUserActivityTime));
-            pw.println("  mLastUserActivityTimeNoChangeLights="
+            pw.println(" mLastUserActivityTime=" + TimeUtils.formatUptime(mLastUserActivityTime));
+            pw.println(" mLastUserActivityTimeNoChangeLights="
                     + TimeUtils.formatUptime(mLastUserActivityTimeNoChangeLights));
-            pw.println("  mDisplayReady=" + mDisplayReady);
-            pw.println("  mHoldingWakeLockSuspendBlocker=" + mHoldingWakeLockSuspendBlocker);
-            pw.println("  mHoldingDisplaySuspendBlocker=" + mHoldingDisplaySuspendBlocker);
+            pw.println(" mDisplayReady=" + mDisplayReady);
+            pw.println(" mHoldingWakeLockSuspendBlocker=" + mHoldingWakeLockSuspendBlocker);
+            pw.println(" mHoldingDisplaySuspendBlocker=" + mHoldingDisplaySuspendBlocker);
 
             pw.println();
             pw.println("Settings and Configuration:");
-            pw.println("  mWakeUpWhenPluggedOrUnpluggedConfig="
+            pw.println(" mWakeUpWhenPluggedOrUnpluggedConfig="
                     + mWakeUpWhenPluggedOrUnpluggedConfig);
-            pw.println("  mSuspendWhenScreenOffDueToProximityConfig="
+            pw.println(" mSuspendWhenScreenOffDueToProximityConfig="
                     + mSuspendWhenScreenOffDueToProximityConfig);
-            pw.println("  mDreamsSupportedConfig=" + mDreamsSupportedConfig);
-            pw.println("  mDreamsEnabledByDefaultConfig=" + mDreamsEnabledByDefaultConfig);
-            pw.println("  mDreamsActivatedOnSleepByDefaultConfig="
+            pw.println(" mDreamsSupportedConfig=" + mDreamsSupportedConfig);
+            pw.println(" mDreamsEnabledByDefaultConfig=" + mDreamsEnabledByDefaultConfig);
+            pw.println(" mDreamsActivatedOnSleepByDefaultConfig="
                     + mDreamsActivatedOnSleepByDefaultConfig);
-            pw.println("  mDreamsActivatedOnDockByDefaultConfig="
+            pw.println(" mDreamsActivatedOnDockByDefaultConfig="
                     + mDreamsActivatedOnDockByDefaultConfig);
-            pw.println("  mDreamsEnabledSetting=" + mDreamsEnabledSetting);
-            pw.println("  mDreamsActivateOnSleepSetting=" + mDreamsActivateOnSleepSetting);
-            pw.println("  mDreamsActivateOnDockSetting=" + mDreamsActivateOnDockSetting);
-            pw.println("  mScreenOffTimeoutSetting=" + mScreenOffTimeoutSetting);
-            pw.println("  mMaximumScreenOffTimeoutFromDeviceAdmin="
+            pw.println(" mDreamsEnabledSetting=" + mDreamsEnabledSetting);
+            pw.println(" mDreamsActivateOnSleepSetting=" + mDreamsActivateOnSleepSetting);
+            pw.println(" mDreamsActivateOnDockSetting=" + mDreamsActivateOnDockSetting);
+            pw.println(" mScreenOffTimeoutSetting=" + mScreenOffTimeoutSetting);
+            pw.println(" mMaximumScreenOffTimeoutFromDeviceAdmin="
                     + mMaximumScreenOffTimeoutFromDeviceAdmin + " (enforced="
                     + isMaximumScreenOffTimeoutFromDeviceAdminEnforcedLocked() + ")");
-            pw.println("  mStayOnWhilePluggedInSetting=" + mStayOnWhilePluggedInSetting);
-            pw.println("  mScreenBrightnessSetting=" + mScreenBrightnessSetting);
-            pw.println("  mScreenAutoBrightnessAdjustmentSetting="
+            pw.println(" mStayOnWhilePluggedInSetting=" + mStayOnWhilePluggedInSetting);
+            pw.println(" mScreenBrightnessSetting=" + mScreenBrightnessSetting);
+            pw.println(" mScreenAutoBrightnessAdjustmentSetting="
                     + mScreenAutoBrightnessAdjustmentSetting);
-            pw.println("  mScreenBrightnessModeSetting=" + mScreenBrightnessModeSetting);
-            pw.println("  mScreenBrightnessOverrideFromWindowManager="
+            pw.println(" mScreenBrightnessModeSetting=" + mScreenBrightnessModeSetting);
+            pw.println(" mScreenBrightnessOverrideFromWindowManager="
                     + mScreenBrightnessOverrideFromWindowManager);
-            pw.println("  mUserActivityTimeoutOverrideFromWindowManager="
+            pw.println(" mUserActivityTimeoutOverrideFromWindowManager="
                     + mUserActivityTimeoutOverrideFromWindowManager);
-            pw.println("  mTemporaryScreenBrightnessSettingOverride="
+            pw.println(" mTemporaryScreenBrightnessSettingOverride="
                     + mTemporaryScreenBrightnessSettingOverride);
-            pw.println("  mTemporaryScreenAutoBrightnessAdjustmentSettingOverride="
+            pw.println(" mTemporaryScreenAutoBrightnessAdjustmentSettingOverride="
                     + mTemporaryScreenAutoBrightnessAdjustmentSettingOverride);
-            pw.println("  mScreenBrightnessSettingMinimum=" + mScreenBrightnessSettingMinimum);
-            pw.println("  mScreenBrightnessSettingMaximum=" + mScreenBrightnessSettingMaximum);
-            pw.println("  mScreenBrightnessSettingDefault=" + mScreenBrightnessSettingDefault);
+            pw.println(" mScreenBrightnessSettingMinimum=" + mScreenBrightnessSettingMinimum);
+            pw.println(" mScreenBrightnessSettingMaximum=" + mScreenBrightnessSettingMaximum);
+            pw.println(" mScreenBrightnessSettingDefault=" + mScreenBrightnessSettingDefault);
 
             final int screenOffTimeout = getScreenOffTimeoutLocked();
             final int screenDimDuration = getScreenDimDurationLocked(screenOffTimeout);
@@ -2360,13 +2375,13 @@ public final class PowerManagerService extends IPowerManager.Stub
             pw.println();
             pw.println("Wake Locks: size=" + mWakeLocks.size());
             for (WakeLock wl : mWakeLocks) {
-                pw.println("  " + wl);
+                pw.println(" " + wl);
             }
 
             pw.println();
             pw.println("Suspend Blockers: size=" + mSuspendBlockers.size());
             for (SuspendBlocker sb : mSuspendBlockers) {
-                pw.println("  " + sb);
+                pw.println(" " + sb);
             }
 
             pw.println();
@@ -2482,8 +2497,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Handler for asynchronous operations performed by the power manager.
-     */
+* Handler for asynchronous operations performed by the power manager.
+*/
     private final class PowerManagerHandler extends Handler {
         public PowerManagerHandler(Looper looper) {
             super(looper, null, true /*async*/);
@@ -2509,8 +2524,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
 
     /**
-     * Represents a wake lock that has been acquired by an application.
-     */
+* Represents a wake lock that has been acquired by an application.
+*/
     private final class WakeLock implements IBinder.DeathRecipient {
         public final IBinder mLock;
         public int mFlags;
@@ -2583,17 +2598,17 @@ public final class PowerManagerService extends IPowerManager.Stub
         private String getLockLevelString() {
             switch (mFlags & PowerManager.WAKE_LOCK_LEVEL_MASK) {
                 case PowerManager.FULL_WAKE_LOCK:
-                    return "FULL_WAKE_LOCK                ";
+                    return "FULL_WAKE_LOCK ";
                 case PowerManager.SCREEN_BRIGHT_WAKE_LOCK:
-                    return "SCREEN_BRIGHT_WAKE_LOCK       ";
+                    return "SCREEN_BRIGHT_WAKE_LOCK ";
                 case PowerManager.SCREEN_DIM_WAKE_LOCK:
-                    return "SCREEN_DIM_WAKE_LOCK          ";
+                    return "SCREEN_DIM_WAKE_LOCK ";
                 case PowerManager.PARTIAL_WAKE_LOCK:
-                    return "PARTIAL_WAKE_LOCK             ";
+                    return "PARTIAL_WAKE_LOCK ";
                 case PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK:
                     return "PROXIMITY_SCREEN_OFF_WAKE_LOCK";
                 default:
-                    return "???                           ";
+                    return "??? ";
             }
         }
 

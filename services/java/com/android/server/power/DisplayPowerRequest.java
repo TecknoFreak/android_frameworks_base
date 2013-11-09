@@ -1,33 +1,33 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2012 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.server.power;
 
 import android.os.PowerManager;
 
 /**
- * Describes the requested power state of the display.
- *
- * This object is intended to describe the general characteristics of the
- * power state, such as whether the screen should be on or off and the current
- * brightness controls leaving the {@link DisplayPowerController} to manage the
- * details of how the transitions between states should occur.  The goal is for
- * the {@link PowerManagerService} to focus on the global power state and not
- * have to micro-manage screen off animations, auto-brightness and other effects.
- */
+* Describes the requested power state of the display.
+*
+* This object is intended to describe the general characteristics of the
+* power state, such as whether the screen should be on or off and the current
+* brightness controls leaving the {@link DisplayPowerController} to manage the
+* details of how the transitions between states should occur. The goal is for
+* the {@link PowerManagerService} to focus on the global power state and not
+* have to micro-manage screen off animations, auto-brightness and other effects.
+*/
 final class DisplayPowerRequest {
     public static final int SCREEN_STATE_OFF = 0;
     public static final int SCREEN_STATE_DIM = 1;
@@ -54,7 +54,7 @@ final class DisplayPowerRequest {
 
     // If true, prevents the screen from completely turning on if it is currently off.
     // The display does not enter a "ready" state if this flag is true and screen on is
-    // blocked.  The window manager policy blocks screen on while it prepares the keyguard to
+    // blocked. The window manager policy blocks screen on while it prepares the keyguard to
     // prevent the user from seeing intermediate updates.
     //
     // Technically, we may not block the screen itself from turning on (because that introduces
@@ -67,6 +67,9 @@ final class DisplayPowerRequest {
     // potentially higher CPU usage and flicker.
     public float responsitivityFactor;
 
+    // Slim settings - override config for ElectronBeam mode
+    public int electronBeamMode;
+
     public DisplayPowerRequest() {
         screenState = SCREEN_STATE_BRIGHT;
         useProximitySensor = false;
@@ -74,6 +77,7 @@ final class DisplayPowerRequest {
         screenAutoBrightnessAdjustment = 0.0f;
         useAutoBrightness = false;
         blockScreenOn = false;
+        electronBeamMode = 0;
         responsitivityFactor = 1.0f;
     }
 
@@ -88,6 +92,7 @@ final class DisplayPowerRequest {
         screenAutoBrightnessAdjustment = other.screenAutoBrightnessAdjustment;
         useAutoBrightness = other.useAutoBrightness;
         blockScreenOn = other.blockScreenOn;
+        electronBeamMode = other.electronBeamMode;
         responsitivityFactor = other.responsitivityFactor;
     }
 
@@ -105,6 +110,7 @@ final class DisplayPowerRequest {
                 && screenAutoBrightnessAdjustment == other.screenAutoBrightnessAdjustment
                 && useAutoBrightness == other.useAutoBrightness
                 && blockScreenOn == other.blockScreenOn
+                && electronBeamMode == other.electronBeamMode
                 && Math.abs(responsitivityFactor - other.responsitivityFactor) < 1E-6;
     }
 
@@ -121,6 +127,7 @@ final class DisplayPowerRequest {
                 + ", screenAutoBrightnessAdjustment=" + screenAutoBrightnessAdjustment
                 + ", useAutoBrightness=" + useAutoBrightness
                 + ", blockScreenOn=" + blockScreenOn
+                + ", electronBeamMode=" + electronBeamMode
                 + ", responsitivityFactor=" + responsitivityFactor;
     }
 }
