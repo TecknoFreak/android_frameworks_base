@@ -1870,6 +1870,12 @@ public final class Settings {
          */
         public static final String AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT = "auto_brightness_twilight_adjustment";
 
+		/**
+        * Notification Power Widget - Custom Brightness Mode
+        * @hide
+        */
+        public static final String EXPANDED_BRIGHTNESS_MODE = "expanded_brightness_mode";
+
         /**
          * Control whether the process CPU usage meter should be shown.
          *
