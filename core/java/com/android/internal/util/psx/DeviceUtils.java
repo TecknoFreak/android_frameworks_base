@@ -69,13 +69,6 @@ public class DeviceUtils {
         return NfcAdapter.getDefaultAdapter(context) != null;
     }
 
-    public static boolean deviceSupportsLte(Context context) {
-        final TelephonyManager tm =
-            (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE)
-                    || tm.getLteOnGsmMode() != 0;
-    }
-
     public static boolean deviceSupportsTorch(Context context) {
         PackageManager pm = context.getPackageManager();
         Resources settingsResources = null;
@@ -88,36 +81,6 @@ public class DeviceUtils {
         int resId = settingsResources.getIdentifier(
                   SETTINGS_METADATA_NAME + ":bool/has_led_flash", null, null);
         return resId > 0 && settingsResources.getBoolean(resId);
-    }
-
-    public static FilteredDeviceFeaturesArray filterUnsupportedDeviceFeatures(Context context,
-            String[] valuesArray, String[] entriesArray) {
-        if (valuesArray == null || entriesArray == null || context == null) {
-            return null;
-        }
-        List<String> finalEntries = new ArrayList<String>();
-        List<String> finalValues = new ArrayList<String>();
-        FilteredDeviceFeaturesArray filteredDeviceFeaturesArray =
-            new FilteredDeviceFeaturesArray();
-
-        for (int i = 0; i < valuesArray.length; i++) {
-            if (isSupportedFeature(context, valuesArray[i])) {
-                finalEntries.add(entriesArray[i]);
-                finalValues.add(valuesArray[i]);
-            }
-        }
-        filteredDeviceFeaturesArray.entries =
-            finalEntries.toArray(new String[finalEntries.size()]);
-        filteredDeviceFeaturesArray.values =
-            finalValues.toArray(new String[finalValues.size()]);
-        return filteredDeviceFeaturesArray;
-    }
-
-    private static boolean isSupportedFeature(Context context, String action) {
-        if (action.equals(ButtonsConstants.ACTION_TORCH) && !deviceSupportsTorch(context)) {
-            return false;
-        }
-        return true;
     }
 
     public static class FilteredDeviceFeaturesArray {
