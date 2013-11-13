@@ -35,10 +35,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.View;
-import android.database.ContentObserver;
-import android.os.Handler;
-import android.os.UserHandle;
-import android.content.ContentResolver;
 
 public class BatteryMeterView extends View implements DemoMode {
     public static final String TAG = BatteryMeterView.class.getSimpleName();
@@ -46,7 +42,7 @@ public class BatteryMeterView extends View implements DemoMode {
 
     public static final boolean ENABLE_PERCENT = true;
     public static final boolean SINGLE_DIGIT_PERCENT = false;
-    public static final boolean SHOW_100_PERCENT = true;
+    public static final boolean SHOW_100_PERCENT = false;
 
     public static final int FULL = 96;
     public static final int EMPTY = 4;
@@ -71,7 +67,6 @@ public class BatteryMeterView extends View implements DemoMode {
     private final RectF mButtonFrame = new RectF();
     private final RectF mClipFrame = new RectF();
     private final Rect mBoltFrame = new Rect();
-	private Context myContext;
 
     private class BatteryTracker extends BroadcastReceiver {
         public static final int UNKNOWN_LEVEL = -1;
@@ -145,35 +140,9 @@ public class BatteryMeterView extends View implements DemoMode {
             }
         }
     }
-	
-	 class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            // Observe all users' changes
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    "status_bar_show_battery_percent"), false, this,
-                    UserHandle.USER_ALL);
-            updateSettings();
-        }
-		
-		  @Override public void onChange(boolean selfChange) {
-            updateSettings();
-        }
-    }
-	
-	public void updateSettings() {
-  	    mShowPercent = ENABLE_PERCENT && 0 != Settings.System.getInt(
-        myContext.getContentResolver(), "status_bar_show_battery_percent", 0);
-        postInvalidate();
-	}
 
     BatteryTracker mTracker = new BatteryTracker();
-	SettingsObserver mSettingsObserver;
-	
+
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -205,9 +174,7 @@ public class BatteryMeterView extends View implements DemoMode {
 
     public BatteryMeterView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        myContext = context;
-		mSettingsObserver = new SettingsObserver(new Handler());
-        mSettingsObserver.observe();
+
         final Resources res = context.getResources();
         TypedArray levels = res.obtainTypedArray(R.array.batterymeter_color_levels);
         TypedArray colors = res.obtainTypedArray(R.array.batterymeter_color_values);
@@ -220,6 +187,8 @@ public class BatteryMeterView extends View implements DemoMode {
         }
         levels.recycle();
         colors.recycle();
+        mShowPercent = ENABLE_PERCENT && 0 != Settings.System.getInt(
+                context.getContentResolver(), "status_bar_show_battery_percent", 0);
 
         mWarningString = context.getString(R.string.battery_meter_very_low_overlay_symbol);
 
@@ -236,7 +205,7 @@ public class BatteryMeterView extends View implements DemoMode {
         mBatteryPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setColor(0xFF222222);
+        mTextPaint.setColor(0xFFFFFFFF);
         Typeface font = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
         mTextPaint.setTypeface(font);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
@@ -291,7 +260,6 @@ public class BatteryMeterView extends View implements DemoMode {
 
     @Override
     public void draw(Canvas c) {
-
         BatteryTracker tracker = mDemoMode ? mDemoTracker : mTracker;
         final int level = tracker.level;
 
@@ -374,17 +342,17 @@ public class BatteryMeterView extends View implements DemoMode {
             c.drawPath(mBoltPath, mBoltPaint);
         } else if (level <= EMPTY) {
             final float x = mWidth * 0.5f;
-            final float y = (mHeight + mWarningTextHeight) * 0.49f;
+            final float y = (mHeight + mWarningTextHeight) * 0.48f;
             c.drawText(mWarningString, x, y, mWarningTextPaint);
         } else if (mShowPercent && !(tracker.level == 100 && !SHOW_100_PERCENT)) {
             mTextPaint.setTextSize(height *
                     (SINGLE_DIGIT_PERCENT ? 0.75f
-                            : (tracker.level == 100 ? 0.4f : 0.6f)));
+                            : (tracker.level == 100 ? 0.38f : 0.5f)));
             mTextHeight = -mTextPaint.getFontMetrics().ascent;
 
             final String str = String.valueOf(SINGLE_DIGIT_PERCENT ? (level/10) : level);
             final float x = mWidth * 0.5f;
-            final float y = (mHeight + mTextHeight) * 0.48f;
+            final float y = (mHeight + mTextHeight) * 0.47f;
             c.drawText(str,
                     x,
                     y,
