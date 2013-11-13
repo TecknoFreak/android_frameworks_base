@@ -2809,7 +2809,13 @@ public final class Settings {
         * @hide
         */
         public static final String POWERMENU_SCREENSHOT_PREFS = "powermenu_screenshot_prefs";
-        		
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_TORCH_PREFS = "powermenu_torch_prefs";
+		
         /** 
          * Electronic beam animation mode
          * 0 = off,
