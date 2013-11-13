@@ -2712,6 +2712,42 @@ public final class Settings {
         public static final String LOCKSCREEN_MAXIMIZE_WIDGETS = "lockscreen_maximize_widgets";
 
         /**
+        * When to show Reboot in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_REBOOT_PREFS = "powermenu_reboot_prefs";
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_SHUTDOWN_PREFS = "powermenu_shutdown_prefs";
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_AIRPLANEMODE_PREFS = "powermenu_airplanemode_prefs";
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_SILENTMODE_PREFS = "powermenu_silentmode_prefs";
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_USERSWITCH_PREFS = "powermenu_userswitch_prefs";
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_SCREENSHOT_PREFS = "powermenu_screenshot_prefs";
+        		
+        /** 
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
