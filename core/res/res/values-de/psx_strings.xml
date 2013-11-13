@@ -3,12 +3,12 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
     <!-- Button to reboot the phone, within the Phone Options dialog -->
-    <string name="reboot_system" product="tablet">Reboot Nexus</string>
-    <string name="reboot_system" product="default">Reboot Nexus</string>
+    <string name="reboot_system" product="tablet">Nexus Neustarten</string>
+    <string name="reboot_system" product="default">Nexus Neustarten</string>
     <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
     <string name="global_action_screenshot">Screenshot</string>
     <!-- Button to reboot the phone, within the Reboot Options dialog -->
-    <string name="reboot_reboot">Reboot</string>
+    <string name="reboot_reboot">Neustart</string>
     <!-- Button to reboot the phone into recovery, within the Reboot Options dialog -->
     <string name="reboot_recovery">Recovery</string>
     <!-- Button to reboot the phone into bootloader, within the Reboot Options dialog -->
@@ -20,16 +20,16 @@
     <!-- Button to reboot the phone into download, within the Reboot Options dialog -->
     <string name="reboot_download">Download</string>
     <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
-    <string name="reboot_progress">Rebooting\u2026</string>
+    <string name="reboot_progress">Neustart\u2026</string>
     <!-- Reboot Confirmation Dialog.  When the user chooses to reboot the phone, there will be a confirmation dialog.  This is the message. -->
-    <string name="reboot_confirm">Your Nexus will reboot.</string>
+    <string name="reboot_confirm">Dein Nexus startet neu.</string>
     <!-- label for item that reboots the phone in phone options dialog -->
-    <string name="global_action_reboot">Reboot</string>
+    <string name="global_action_reboot">Neustart</string>
     <!-- label for item that toggles torge in phone options dialog -->
-    <string name="global_action_torch">Torch</string>
-    <string name="global_action_torch_on">On</string>
-    <string name="global_action_torch_off">Off</string>
+    <string name="global_action_torch">Taschenlampe</string>
+    <string name="global_action_torch_on">Ein</string>
+    <string name="global_action_torch_off">Aus</string>
 
     <!-- kill app long press back -->
-    <string name="app_killed_message">Application Killed</string>
+    <string name="app_killed_message">Programm beendet</string>
 </resources>

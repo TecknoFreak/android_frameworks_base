@@ -2746,7 +2746,13 @@ public final class Settings {
         * @hide
         */
         public static final String POWERMENU_SCREENSHOT_PREFS = "powermenu_screenshot_prefs";
-        		
+
+        /**
+        * When to show Shutdown in Powermenu
+        * @hide
+        */
+        public static final String POWERMENU_TORCH_PREFS = "powermenu_torch_prefs";
+		
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
