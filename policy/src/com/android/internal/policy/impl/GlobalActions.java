@@ -104,7 +104,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
-	private ToggleAction mTorch;
+
 
     private MyAdapter mAdapter;
 
@@ -245,32 +245,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         };
         onAirplaneModeChanged();
 
-        mTorch = new ToggleAction(
-                R.drawable.ic_qs_torch_on,
-                R.drawable.ic_qs_torch_off,
-                R.string.global_action_torch,
-                R.string.global_action_torch_on,
-                R.string.global_action_torch_off) {
-
-            void onToggle(boolean on) {
-                Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
-                mContext.sendBroadcast(i);			
-				if (mState == State.Off) {
-				    mState = State.On;
-				} else {
-				    mState = State.Off;
-				}
-            }
-			
-            public boolean showDuringKeyguard() {
-                return true;
-            }
-
-            public boolean showBeforeProvisioning() {
-                return false;
-            }
-        };
-		
         mItems = new ArrayList<Action>();
 
         // first: power off
@@ -339,13 +313,28 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                                                 return true;
                                         }
             });
-		}
+	}
 		
         // next: torch
         Integer showPowermenuTorch =Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWERMENU_TORCH_PREFS, 2);
         if ((showPowermenuTorch == 2) || (showPowermenuTorch == 1 && mKeyguardShowing == false)) { 		
-            mItems.add(mTorch);
+                        mItems.add(
+                                new SinglePressAction(R.drawable.ic_qs_torch_on, R.string.global_action_torch) {
+                                        public void onPress() {
+                                            Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+                                            mContext.sendBroadcast(i);			
+                                        }
+
+                                        public boolean showDuringKeyguard() {
+                                                return true;
+                                        }
+
+                                        public boolean showBeforeProvisioning() {
+                                                return true;
+                                        }
+            });
+        	
         }
 
         // next: airplane mode
