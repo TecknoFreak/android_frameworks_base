@@ -1422,6 +1422,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
 
         if (mNotificationShortcutsVisible != vis) {
             mNotificationShortcutsVisible = vis;
+            mNotificationShortcutsScrollView.animate().cancel();
             if (vis) {
                 mNotificationShortcutsScrollView.setVisibility(View.VISIBLE);
             }
@@ -1885,7 +1886,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
                 updateCarrierAndWifiLabelVisibility(false, false);
             }
         }, FLIP_DURATION - 150);
-
         if (mNotificationShortcutsIsActive) {
             updateNotificationShortcutsVisibility(true);
         }
@@ -1957,6 +1957,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             mScrollView.setVisibility(View.VISIBLE);
             mScrollView.setScaleX(-percent);
             mNotificationButton.setVisibility(View.GONE);
+            updateCarrierAndWifiLabelVisibility(false, false);
+            if (mNotificationShortcutsIsActive) {
+                updateNotificationShortcutsVisibility(true);
+            }
         } else { // settings side
             mFlipSettingsView.setScaleX(percent);
             mFlipSettingsView.setVisibility(View.VISIBLE);
@@ -1965,6 +1969,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             mScrollView.setScaleX(0f);
             mNotificationButton.setVisibility(View.VISIBLE);
             mNotificationButton.setAlpha(percent);
+            updateCarrierAndWifiLabelVisibility(false, true);
+            updateNotificationShortcutsVisibility(false);
         }
         mClearButton.setVisibility(View.GONE);
     }
@@ -2015,21 +2021,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
                 ObjectAnimator.ofFloat(mClearButton, View.ALPHA, 0f)
                 .setDuration(FLIP_DURATION),
                 mClearButton, View.INVISIBLE));
-        mNotificationPanel.postDelayed(new Runnable() {
-            public void run() {
-                updateCarrierAndWifiLabelVisibility(false, false);
-            }
-        }, FLIP_DURATION - 150);
-
-
-        if (mNotificationShortcutsIsActive) {
-            mNotificationPanel.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateNotificationShortcutsVisibility(false);
-                }
-            }, FLIP_DURATION - 150);
-        }
+        updateCarrierAndWifiLabelVisibility(false, true);
+        updateNotificationShortcutsVisibility(false);
     }
 
     public void flipPanels() {
