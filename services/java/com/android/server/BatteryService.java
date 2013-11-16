@@ -726,7 +726,7 @@ public final class BatteryService extends Binder {
 
             // Does the device supports changing battery LED colors?
             mMultiColorLed = context.getResources().getBoolean(
-                    com.android.internal.R.bool.config_multiColorBatteryLed);
+                    com.android.internal.R.bool.config_intrusiveNotificationLed);
         }
 
         /**

@@ -53,6 +53,7 @@
   <java-symbol type="array" name="notification_light_package_mapping" />
   <java-symbol type="bool" name="config_multiColorBatteryLed" />
   <java-symbol type="bool" name="config_intrusiveBatteryLed" />
+  <java-symbol type="bool" name="config_showBatteryLedOption" />
 
   <!-- Config IME switcher -->
   <java-symbol type="bool" name="config_show_IMESwitcher" />
