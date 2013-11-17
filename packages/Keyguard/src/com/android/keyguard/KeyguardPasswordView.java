@@ -34,6 +34,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.android.internal.widget.PasswordEntryKeyboardHelper;
 import com.android.internal.widget.PasswordEntryKeyboardView;
+import android.provider.Settings;
 
 import java.util.List;
 /**
@@ -45,7 +46,8 @@ public class KeyguardPasswordView extends KeyguardAbsKeyInputView
         implements KeyguardSecurityView, OnEditorActionListener, TextWatcher {
 
     private final boolean mShowImeAtScreenOn;
-
+    private boolean mQuickUnlock;
+	
     InputMethodManager mImm;
 
     public KeyguardPasswordView(Context context) {
@@ -70,7 +72,7 @@ public class KeyguardPasswordView extends KeyguardAbsKeyInputView
 
     @Override
     protected boolean getQuickUnlockAllowed() {
-        return true;
+        return mQuickUnlock;
     }
 
     @Override
@@ -98,6 +100,8 @@ public class KeyguardPasswordView extends KeyguardAbsKeyInputView
         super.onFinishInflate();
 
         boolean imeOrDeleteButtonVisible = false;
+		mQuickUnlock = (Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.PSX_LOCKSCREEN_QUICK_UNLOCK_CONTROL, 0) == 1);
 
         mImm = (InputMethodManager) getContext().getSystemService(
                 Context.INPUT_METHOD_SERVICE);

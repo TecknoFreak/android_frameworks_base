@@ -25,12 +25,15 @@ import android.text.method.DigitsKeyListener;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView.OnEditorActionListener;
+import android.provider.Settings;
 
 /**
  * Displays a PIN pad for unlocking.
  */
 public class KeyguardPINView extends KeyguardAbsKeyInputView
         implements KeyguardSecurityView, OnEditorActionListener, TextWatcher {
+
+    private boolean mQuickUnlock;
 
     public KeyguardPINView(Context context) {
         this(context, null);
@@ -56,13 +59,16 @@ public class KeyguardPINView extends KeyguardAbsKeyInputView
 
     @Override
     protected boolean getQuickUnlockAllowed() {
-        return true;
+        return mQuickUnlock;
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
+		mQuickUnlock = (Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.PSX_LOCKSCREEN_QUICK_UNLOCK_CONTROL, 0) == 1);
+		
         final View ok = findViewById(R.id.key_enter);
         if (ok != null) {
             ok.setOnClickListener(new View.OnClickListener() {
