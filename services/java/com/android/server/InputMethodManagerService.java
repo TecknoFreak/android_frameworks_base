@@ -831,11 +831,19 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                 mStatusBar = statusBar;
                 statusBar.setIconVisibility("ime", false);
                 updateImeWindowStatusLocked();
-                mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
+           		mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
                         com.android.internal.R.bool.show_ongoing_ime_switcher);
                 if (mShowOngoingImeSwitcherForPhones) {
                     mWindowManagerService.setOnHardKeyboardStatusChangeListener(
                             mHardKeyboardListener);
+                }
+                try {
+                    mShowOngoingImeSwitcherForPhones =
+                        Settings.System.getIntForUser(mContext.getContentResolver(),
+                        Settings.System.STATUS_BAR_IME_SWITCHER, UserHandle.USER_CURRENT) == 1;
+                } catch (SettingNotFoundException e) {
+                    mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
+                        com.android.internal.R.bool.config_show_IMESwitcher);
                 }
                 buildInputMethodListLocked(mMethodList, mMethodMap,
                         !mImeSelectedOnBoot /* resetDefaultEnabledIme */);
