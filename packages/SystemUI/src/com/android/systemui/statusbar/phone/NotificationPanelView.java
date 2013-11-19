@@ -34,18 +34,18 @@ import com.android.systemui.statusbar.GestureRecorder;
 public class NotificationPanelView extends PanelView {
     public static final boolean DEBUG_GESTURES = true;
 
+    private static final float STATUS_BAR_SETTINGS_LEFT_PERCENTAGE = 0.8f;
+    private static final float STATUS_BAR_SETTINGS_RIGHT_PERCENTAGE = 0.2f;
     private static final float STATUS_BAR_SWIPE_TRIGGER_PERCENTAGE = 0.05f;
     private static final float STATUS_BAR_SWIPE_VERTICAL_MAX_PERCENTAGE = 0.025f;
     private static final float STATUS_BAR_SWIPE_MOVE_PERCENTAGE = 0.2f;
-    private static final float STATUS_BAR_SETTINGS_LEFT_PERCENTAGE = 0.8f;
-    private static final float STATUS_BAR_SETTINGS_RIGHT_PERCENTAGE = 0.2f;
 
-    Drawable mHandleBar;
-    int mHandleBarHeight;
-    View mHandleView;
-    int mFingers;
-    PhoneStatusBar mStatusBar;
-    boolean mOkToFlip;
+    private Drawable mHandleBar;
+    private float mHandleBarHeight;
+    private View mHandleView;
+    private int mFingers;
+    private PhoneStatusBar mStatusBar;
+    private boolean mOkToFlip;
 
     private float mGestureStartX;
     private float mGestureStartY;
@@ -117,21 +117,18 @@ public class NotificationPanelView extends PanelView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (DEBUG_GESTURES) {
-            if (event.getActionMasked() != MotionEvent.ACTION_MOVE) {
-                EventLog.writeEvent(EventLogTags.SYSUI_NOTIFICATIONPANEL_TOUCH,
-                       event.getActionMasked(), (int) event.getX(), (int) event.getY());
-            }
-        }
         boolean shouldRecycleEvent = false;
         if (PhoneStatusBar.SETTINGS_DRAG_SHORTCUT && mStatusBar.mHasFlipSettings) {
+            boolean flip = false;
             boolean swipeFlipJustFinished = false;
             boolean swipeFlipJustStarted = false;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     mGestureStartX = event.getX(0);
                     mGestureStartY = event.getY(0);
-                    mTrackingSwipe = isFullyExpanded();
+                    mTrackingSwipe = isFullyExpanded() &&
+                        // Pointer is at the handle portion of the view?
+                        mGestureStartY > getHeight() - mHandleBarHeight - getPaddingBottom();
                     mOkToFlip = getExpandedHeight() == 0;
                     if (event.getX(0) > getWidth() * (1.0f - STATUS_BAR_SETTINGS_RIGHT_PERCENTAGE) &&
                             Settings.System.getInt(getContext().getContentResolver(),
@@ -148,22 +145,19 @@ public class NotificationPanelView extends PanelView {
                     final float deltaY = Math.abs(event.getY(0) - mGestureStartY);
                     final float maxDeltaY = getHeight() * STATUS_BAR_SWIPE_VERTICAL_MAX_PERCENTAGE;
                     final float minDeltaX = getWidth() * STATUS_BAR_SWIPE_TRIGGER_PERCENTAGE;
-
                     if (mTrackingSwipe && deltaY > maxDeltaY) {
                         mTrackingSwipe = false;
                     }
                     if (mTrackingSwipe && deltaX > deltaY && deltaX > minDeltaX) {
-
-                        mSwipeDirection = event.getX(0) - mGestureStartX;
 
                         // The value below can be used to adjust deltaX to always increase,
                         // if the user keeps swiping in the same direction as she started the
                         // gesture. If she, however, moves her finger the other way, deltaX will
                         // decrease.
                         //
-                        // This allows for a horizontal, in any direction, to always flip the
-                        // views.
-                        mSwipeDirection = mSwipeDirection < 0f ? -1f : 1f;
+                        // This allows for an horizontal swipe, in any direction, to always flip
+                        // the views.
+                        mSwipeDirection = event.getX(0) < mGestureStartX ? -1f : 1f;
 
                         if (mStatusBar.isShowingSettings()) {
                             mFlipOffset = 1f;
@@ -179,8 +173,14 @@ public class NotificationPanelView extends PanelView {
                     }
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
-                            mOkToFlip = true;
-                        }
+                    flip = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    swipeFlipJustFinished = mSwipeTriggered;
+                    mSwipeTriggered = false;
+                    mTrackingSwipe = false;
+                    break;
+            }
             if (mOkToFlip && flip) {
                 float miny = event.getY(0);
                 float maxy = miny;
@@ -197,16 +197,7 @@ public class NotificationPanelView extends PanelView {
                     }
                     mOkToFlip = false;
                 }
-            }
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                    swipeFlipJustFinished = mSwipeTriggered;
-                    mSwipeTriggered = false;
-                    mTrackingSwipe = false;
-                    break;
-            }
-            if (mSwipeTriggered) {
+            } else if (mSwipeTriggered) {
                 final float deltaX = (event.getX(0) - mGestureStartX) * mSwipeDirection;
                 mStatusBar.partialFlip(mFlipOffset +
                                        deltaX / (getWidth() * STATUS_BAR_SWIPE_MOVE_PERCENTAGE));
@@ -225,11 +216,17 @@ public class NotificationPanelView extends PanelView {
                     original.getPressure(0), original.getSize(0), original.getMetaState(),
                     original.getXPrecision(), original.getYPrecision(), original.getDeviceId(),
                     original.getEdgeFlags());
+
+                // The following two lines looks better than the chunk of code above, but,
+                // nevertheless, doesn't work. The view is not pinned down, and may close,
+                // just after the gesture is finished.
+                //
+                // event = MotionEvent.obtainNoHistory(original);
+                // event.setLocation(getWidth()/2, getHeight());
                 shouldRecycleEvent = true;
             }
 
         }
-
         final boolean result = mHandleView.dispatchTouchEvent(event);
         if (shouldRecycleEvent) {
             event.recycle();
@@ -237,3 +234,4 @@ public class NotificationPanelView extends PanelView {
         return result;
     }
 }
+
