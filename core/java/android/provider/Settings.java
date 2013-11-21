@@ -2827,12 +2827,6 @@ public final class Settings {
         public static final String SYSTEM_POWER_CRT_MODE = "system_power_crt_mode";
 
         /**
-         * Height of navigation bar buttons
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
-
-        /**
          * Allows to show the background activity back the lockscreen
          * @hide
          */
