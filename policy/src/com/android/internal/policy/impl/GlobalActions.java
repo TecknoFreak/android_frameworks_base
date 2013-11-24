@@ -27,6 +27,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -104,7 +105,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
-    private ToggleAction mExpandDesktopModeOn;
+    private ToggleAction mGlobalImmersiveModeOn;
 
     private MyAdapter mAdapter;
 
@@ -203,12 +204,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mSilentModeAction = new SilentModeTriStateAction(mContext, mAudioManager, mHandler);
         }
 
-        mExpandDesktopModeOn = new ToggleAction(
-                R.drawable.ic_lock_expanded_desktop,
-                R.drawable.ic_lock_expanded_desktop,
-                R.string.global_actions_toggle_expanded_desktop_mode,
-                R.string.global_actions_expanded_desktop_mode_on_status,
-                R.string.global_actions_expanded_desktop_mode_off_status) {
+  mGlobalImmersiveModeOn = new ToggleAction(
+                R.drawable.ic_lock_immersive_mode_on,
+                R.drawable.ic_lock_immersive_mode_off,
+                R.string.global_actions_toggle_global_immersive_mode,
+                R.string.global_actions_global_immersive_mode_on_status,
+                R.string.global_actions_global_immersive_mode_off_status) {
 
             void onToggle(boolean on) {
                 changeExpandDesktopModeSystemSetting(on);
@@ -267,6 +268,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         };
         onAirplaneModeChanged();
 
+        final ContentResolver cr = mContext.getContentResolver();
         mItems = new ArrayList<Action>();
 
         // first: power off
@@ -359,8 +361,17 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         	
         }
 
-        // next: expanded desktop toggle
-        mItems.add(mExpandDesktopModeOn);
+        // next: global immersive mode toggle
+        // only shown if enabled and global immersive mode is enabled, disabled by default
+        boolean showGlobalImmersiveMode =
+                Settings.System.getIntForUser(cr,
+                        Settings.System.GLOBAL_IMMERSIVE_MODE_STYLE, 0, UserHandle.USER_CURRENT) != 0
+                && Settings.System.getIntForUser(cr,
+                        Settings.System.POWER_MENU_GLOBAL_IMMERSIVE_MODE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
+
+        if (showGlobalImmersiveMode) {
+            mItems.add(mGlobalImmersiveModeOn);
+        }
 
         // next: airplane mode
         Integer showPowermenuAirplaneMode =Settings.System.getInt(mContext.getContentResolver(),
@@ -1110,11 +1121,11 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     }
 
     private void onExpandDesktopModeChanged() {
-        boolean expandDesktopModeOn = Settings.System.getInt(
+        boolean expandDesktopModeOn = Settings.System.getIntForUser(
                 mContext.getContentResolver(),
-                Settings.System.EXPANDED_DESKTOP_STATE,
-                0) == 1;
-        mExpandDesktopModeOn.updateState(expandDesktopModeOn ? ToggleAction.State.On : ToggleAction.State.Off);
+                Settings.System.GLOBAL_IMMERSIVE_MODE_STATE,
+                0, UserHandle.USER_CURRENT) == 1;
+        mGlobalImmersiveModeOn.updateState(expandDesktopModeOn ? ToggleAction.State.On : ToggleAction.State.Off);
     }
 
     /**
@@ -1138,10 +1149,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
      * Change the expand desktop mode system setting
      */
     private void changeExpandDesktopModeSystemSetting(boolean on) {
-        Settings.System.putInt(
+        Settings.System.putIntForUser(
                 mContext.getContentResolver(),
-                Settings.System.EXPANDED_DESKTOP_STATE,
-                on ? 1 : 0);
+                Settings.System.GLOBAL_IMMERSIVE_MODE_STATE,
+                on ? 1 : 0, UserHandle.USER_CURRENT);
     }
 
     private static final class GlobalActionsDialog extends Dialog implements DialogInterface {
