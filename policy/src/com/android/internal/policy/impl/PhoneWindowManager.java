@@ -1120,6 +1120,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // Controls rotation and the like.
         initializeHdmiState();
 
+        ContentResolver resolver = mContext.getContentResolver();
+        mUserRotationAngles = Settings.System.getIntForUser(resolver,
+                Settings.System.ACCELEROMETER_ROTATION_ANGLES, -1,
+                UserHandle.USER_CURRENT);
+		
         // Match current screen state.
         if (mPowerManager.isScreenOn()) {
             screenTurningOn(null);
