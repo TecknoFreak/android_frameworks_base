@@ -24,11 +24,13 @@ import android.app.ActivityManagerNative;
 import android.app.ActivityOptions;
 import android.app.TaskStackBuilder;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -37,6 +39,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -45,6 +48,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
@@ -58,6 +62,7 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.FrameLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -93,7 +98,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     private int mRecentItemLayoutId;
     private boolean mHighEndGfx;
     private ImageView mClearRecents;
-
+    private SettingsObserver mSettingsObserver;
+	
     public static interface RecentsScrollView {
         public int numItemsInOneScreenful();
         public void setAdapter(TaskDescriptionAdapter adapter);
@@ -457,7 +463,9 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     ((ViewGroup) mRecentsContainer).removeAllViewsInLayout();
                 }
             });
-        }
+        mSettingsObserver = new SettingsObserver(new Handler());
+        mSettingsObserver.observe();
+    }
 
         if (mRecentsScrim != null) {
             mHighEndGfx = ActivityManager.isHighEndGfx();
@@ -469,7 +477,45 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             }
         }
     }
+	
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
 
+        void observe() {
+            // Observe all users' changes
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.CLEAR_ALL_LAYOUT), false, this,
+                    UserHandle.USER_ALL);
+            updateClearRecentsLayout();
+        }
+
+        @Override public void onChange(boolean selfChange) {
+            updateClearRecentsLayout();
+        }
+    }	
+
+    public void updateClearRecentsLayout() {
+	    if (mClearRecents != null){
+		    FrameLayout.LayoutParams params=new FrameLayout.LayoutParams(mClearRecents.getLayoutParams());
+            int mPos = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.CLEAR_ALL_LAYOUT, 0,
+                    UserHandle.USER_CURRENT);
+            if (mPos == 1) {
+			    params.gravity = Gravity.TOP | Gravity.RIGHT;
+			} else if (mPos == 2) {
+			    params.gravity = Gravity.BOTTOM | Gravity.LEFT;
+			} else if (mPos == 3) {
+			    params.gravity = Gravity.TOP | Gravity.LEFT;
+			} else {
+			    params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+			}
+		    mClearRecents.setLayoutParams(params);
+        }
+	}
+	
     public void setMinSwipeAlpha(float minAlpha) {
         mRecentsContainer.setMinSwipeAlpha(minAlpha);
     }

@@ -3016,6 +3016,15 @@ public final class Settings {
          */
         public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
 
+		/**
+		 * Layout for Clear All Button
+		 * 0 = Bottom/Right
+		 * 1 = Top/Right
+		 * 2 = Bottom/Left
+		 * 3 = Top/Left
+		 */
+		public static final String CLEAR_ALL_LAYOUT="clear_all_layout";
+		
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
