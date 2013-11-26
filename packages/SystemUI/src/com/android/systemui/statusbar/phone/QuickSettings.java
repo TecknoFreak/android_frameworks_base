@@ -491,7 +491,7 @@ class QuickSettings {
                 rotationLockTile.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        startSettingsActivity(android.provider.Settings.ACTION_DISPLAY_SETTINGS);
+                        startSettingsActivity(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
                         return true;
                     }
                 });
