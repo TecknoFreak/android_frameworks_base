@@ -2556,6 +2556,13 @@ public final class Settings {
         public static final String EGG_MODE = "egg_mode";
 
         /**
+         * Whether to mute annoying notifications
+         * @hide
+         */
+        public static final String ANNOYING_NOTIFICATIONS_THRESHOLD =
+                "mute_annoying_notifications_threshold";
+
+        /**
          * Whether to enable quiet hours.
          * @hide
          */
