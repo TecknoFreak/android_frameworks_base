@@ -170,7 +170,7 @@ public class NotificationManagerService extends INotificationManager.Stub
     private boolean mWasScreenOn = true;
     private boolean mInCall = false;
     private boolean mNotificationPulseEnabled;
-    private HashMap<String, NotificationLedValues> mNotificationPulseCustomLedValues;
+    private HashMap<String, ExtendedNotificationInfo> mNotificationPulseCustomexnInfo;
     private Map<String, String> mPackageNameMappings;
 
     // used as a mutex for access to all active notifications & listeners
@@ -1111,10 +1111,12 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 
-    class NotificationLedValues {
+    class ExtendedNotificationInfo {
         public int color;
         public int onMS;
         public int offMS;
+		public String sound;
+		public String vibrate;
     }
 
     private StatusBarManagerService.NotificationCallbacks mNotificationCallbacks
@@ -1378,7 +1380,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                     UserHandle.USER_CURRENT);
 
             // LED custom notification colors
-            mNotificationPulseCustomLedValues.clear();
+            mNotificationPulseCustomexnInfo.clear();
             if (Settings.System.getIntForUser(resolver,
                     Settings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE, 0,
                     UserHandle.USER_CURRENT) != 0) {
@@ -1502,7 +1504,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                 VIBRATE_PATTERN_MAXLEN,
                 DEFAULT_VIBRATE_PATTERN);
 
-        mNotificationPulseCustomLedValues = new HashMap<String, NotificationLedValues>();
+        mNotificationPulseCustomexnInfo = new HashMap<String, ExtendedNotificationInfo>();
 
         mPackageNameMappings = new HashMap<String, String>();
         for (String mapping : resources.getStringArray(
@@ -2032,7 +2034,10 @@ public class NotificationManagerService extends INotificationManager.Stub
                         final AudioManager audioManager = (AudioManager) mContext
                         .getSystemService(Context.AUDIO_SERVICE);
 
+						
+						
                         // sound
+                        final ExtendedNotificationInfo exnInfo = getexnInfoForNotification(r);
 
                         // should we use the default notification sound? (indicated either by
                         // DEFAULT_SOUND or because notification.sound is pointing at
@@ -2045,18 +2050,25 @@ public class NotificationManagerService extends INotificationManager.Stub
                         Uri soundUri = null;
                         boolean hasValidSound = false;
 
-                        if (!(inQuietHours && mQuietHoursMute) && useDefaultSound) {
-                            soundUri = Settings.System.DEFAULT_NOTIFICATION_URI;
+                        if (!(inQuietHours && mQuietHoursMute)) {
+						    if (useDefaultSound) {
+                                soundUri = Settings.System.DEFAULT_NOTIFICATION_URI;
 
-                            // check to see if the default notification sound is silent
-                            ContentResolver resolver = mContext.getContentResolver();
-                            hasValidSound = Settings.System.getString(resolver,
-                                   Settings.System.NOTIFICATION_SOUND) != null;
-                        } else if (!(inQuietHours
-                                && mQuietHoursMute) && notification.sound != null) {
-                            soundUri = notification.sound;
-                            hasValidSound = (soundUri != null);
-                        }
+                                // check to see if the default notification sound is silent
+                                ContentResolver resolver = mContext.getContentResolver();
+                                hasValidSound = Settings.System.getString(resolver,
+                                       Settings.System.NOTIFICATION_SOUND) != null;
+                            } else if (!(inQuietHours && mQuietHoursMute) && notification.sound != null) {
+                                soundUri = notification.sound;
+                                hasValidSound = (soundUri != null);
+                            }
+							if (exnInfo !=null) {
+							    if (exnInfo.sound !="") {
+    							    soundUri = Uri.parse(exnInfo.sound);
+									hasValidSound = (soundUri != null);
+								}
+							}
+						}
 
                         if (hasValidSound) {
                             boolean looping = (notification.flags & Notification.FLAG_INSISTENT) != 0;
@@ -2100,32 +2112,41 @@ public class NotificationManagerService extends INotificationManager.Stub
                         final boolean useDefaultVibrate =
                                 (notification.defaults & Notification.DEFAULT_VIBRATE) != 0;
 
-                        if (!(inQuietHours && mQuietHoursStill)
-                        && (useDefaultVibrate || convertSoundToVibration || hasCustomVibrate)
-                                && !(audioManager.getRingerMode()
-                                        == AudioManager.RINGER_MODE_SILENT)) {
-                            mVibrateNotification = r;
+						boolean doVibrate = true;
+							if (exnInfo !=null) {
+							    if (exnInfo.vibrate == "(false)") {
+								    doVibrate = false;
+								}
+							}
+					    
+						if (doVibrate == true) {
+                            if (!(inQuietHours && mQuietHoursStill)
+                            && (useDefaultVibrate || convertSoundToVibration || hasCustomVibrate)
+                                    && !(audioManager.getRingerMode()
+                                            == AudioManager.RINGER_MODE_SILENT)) {
+                                mVibrateNotification = r;
 
-                            if (useDefaultVibrate || convertSoundToVibration) {
-                                // Escalate privileges so we can use the vibrator even if the
-                                // notifying app does not have the VIBRATE permission.
-                                long identity = Binder.clearCallingIdentity();
-                                try {
+                                if (useDefaultVibrate || convertSoundToVibration) {
+                                    // Escalate privileges so we can use the vibrator even if the
+                                    // notifying app does not have the VIBRATE permission.
+                                    long identity = Binder.clearCallingIdentity();
+                                    try {
+                                        mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
+                                            useDefaultVibrate ? mDefaultVibrationPattern
+                                                : mFallbackVibrationPattern,
+                                            ((notification.flags & Notification.FLAG_INSISTENT) != 0)
+                                                    ? 0: -1);
+                                    } finally {
+                                        Binder.restoreCallingIdentity(identity);
+                                    }
+                                } else if (notification.vibrate.length > 1) {
+                                    // If you want your own vibration pattern, you need the VIBRATE
+                                    // permission
                                     mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
-                                        useDefaultVibrate ? mDefaultVibrationPattern
-                                            : mFallbackVibrationPattern,
+                                            notification.vibrate,
                                         ((notification.flags & Notification.FLAG_INSISTENT) != 0)
                                                 ? 0: -1);
-                                } finally {
-                                    Binder.restoreCallingIdentity(identity);
-                                }
-                            } else if (notification.vibrate.length > 1) {
-                                // If you want your own vibration pattern, you need the VIBRATE
-                                // permission
-                                mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
-                                        notification.vibrate,
-                                    ((notification.flags & Notification.FLAG_INSISTENT) != 0)
-                                            ? 0: -1);
+								}
                             }
                         }
                     }
@@ -2448,15 +2469,15 @@ public class NotificationManagerService extends INotificationManager.Stub
             mNotificationLight.turnOff();
         } else if (mNotificationPulseEnabled) {
             final Notification ledno = mLedNotification.sbn.getNotification();
-            final NotificationLedValues ledValues = getLedValuesForNotification(mLedNotification);
+            final ExtendedNotificationInfo exnInfo = getexnInfoForNotification(mLedNotification);
             int ledARGB = ledno.ledARGB;
             int ledOnMS = ledno.ledOnMS;
             int ledOffMS = ledno.ledOffMS;
 
-            if (ledValues != null) {
-                ledARGB = ledValues.color != 0 ? ledValues.color : mDefaultNotificationColor;
-                ledOnMS = ledValues.onMS >= 0 ? ledValues.onMS : mDefaultNotificationLedOn;
-                ledOffMS = ledValues.offMS >= 0 ? ledValues.offMS : mDefaultNotificationLedOff;
+            if (exnInfo != null) {
+                ledARGB = exnInfo.color != 0 ? exnInfo.color : mDefaultNotificationColor;
+                ledOnMS = exnInfo.onMS >= 0 ? exnInfo.onMS : mDefaultNotificationLedOn;
+                ledOffMS = exnInfo.offMS >= 0 ? exnInfo.offMS : mDefaultNotificationLedOff;
             } else if ((ledno.defaults & Notification.DEFAULT_LIGHTS) != 0) {
                 ledARGB = mDefaultNotificationColor;
                 ledOnMS = mDefaultNotificationLedOn;
@@ -2469,12 +2490,12 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 
-    private void parseNotificationPulseCustomValuesString(String customLedValuesString) {
-        if (TextUtils.isEmpty(customLedValuesString)) {
+    private void parseNotificationPulseCustomValuesString(String customexnInfoString) {
+        if (TextUtils.isEmpty(customexnInfoString)) {
             return;
         }
 
-        for (String packageValuesString : customLedValuesString.split("\\|")) {
+        for (String packageValuesString : customexnInfoString.split("\\|")) {
             String[] packageValues = packageValuesString.split("=");
             if (packageValues.length != 2) {
                 Log.e(TAG, "Error parsing custom led values for unknown package");
@@ -2482,28 +2503,35 @@ public class NotificationManagerService extends INotificationManager.Stub
             }
             String packageName = packageValues[0];
             String[] values = packageValues[1].split(";");
-            if (values.length != 3) {
+            if (values.length < 3) {
                 Log.e(TAG, "Error parsing custom led values '"
                         + packageValues[1] + "' for " + packageName);
                 continue;
             }
-            NotificationLedValues ledValues = new NotificationLedValues();
+            ExtendedNotificationInfo exnInfo = new ExtendedNotificationInfo();
             try {
-                ledValues.color = Integer.parseInt(values[0]);
-                ledValues.onMS = Integer.parseInt(values[1]);
-                ledValues.offMS = Integer.parseInt(values[2]);
+                exnInfo.color = Integer.parseInt(values[0]);
+                exnInfo.onMS = Integer.parseInt(values[1]);
+                exnInfo.offMS = Integer.parseInt(values[2]);
+				if (values.length == 5) {
+				    exnInfo.sound = values[3];
+					exnInfo.vibrate = values[4];
+				} else {
+				    exnInfo.sound = "";
+				    exnInfo.vibrate = "";
+				}			
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing custom led values '"
                         + packageValues[1] + "' for " + packageName);
                 continue;
             }
-            mNotificationPulseCustomLedValues.put(packageName, ledValues);
+            mNotificationPulseCustomexnInfo.put(packageName, exnInfo);
         }
     }
 
-    private NotificationLedValues getLedValuesForNotification(NotificationRecord ledNotification) {
+    private ExtendedNotificationInfo getexnInfoForNotification(NotificationRecord ledNotification) {
         final String packageName = ledNotification.sbn.getPackageName();
-        return mNotificationPulseCustomLedValues.get(mapPackage(packageName));
+        return mNotificationPulseCustomexnInfo.get(mapPackage(packageName));
     }
 
     private String mapPackage(String pkg) {
