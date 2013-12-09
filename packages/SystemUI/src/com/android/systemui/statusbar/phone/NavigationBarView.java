@@ -255,6 +255,17 @@ public class NavigationBarView extends LinearLayout {
         mButtonsConfig = ButtonsHelper.getNavBarConfig(mContext);
         mButtonIdList = new ArrayList<Integer>();
     }
+    
+    protected void transitionCameraAndSearchButtonAlpha(float alpha) {
+        View cameraButtonView = getCameraButton();
+        if (cameraButtonView != null) {
+            cameraButtonView.animate().alpha(alpha).setDuration(CAMERA_BUTTON_FADE_DURATION);
+        }
+        View searchLight = getSearchLight();
+        if (searchLight != null) {
+            searchLight.animate().alpha(alpha).setDuration(CAMERA_BUTTON_FADE_DURATION);
+        }
+    }
 
     private void watchForDevicePolicyChanges() {
         final IntentFilter filter = new IntentFilter();
