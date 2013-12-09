@@ -74,6 +74,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NavigationBarView extends LinearLayout {
+    private static final int CAMERA_BUTTON_FADE_DURATION = 200;
     final static boolean DEBUG = false;
     final static String TAG = "PhoneStatusBar/NavigationBarView";
 
