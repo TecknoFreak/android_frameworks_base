@@ -78,8 +78,11 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
 import com.android.internal.R;
-
 import com.android.internal.notification.NotificationScorer;
+
+import com.android.server.ExtendedNotification;
+import com.android.server.ExtendedNotificationCollection;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -94,7 +97,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -170,8 +172,6 @@ public class NotificationManagerService extends INotificationManager.Stub
     private boolean mWasScreenOn = true;
     private boolean mInCall = false;
     private boolean mNotificationPulseEnabled;
-    private HashMap<String, ExtendedNotificationInfo> mNotificationPulseCustomexnInfo;
-    private Map<String, String> mPackageNameMappings;
 
     // used as a mutex for access to all active notifications & listeners
     private final ArrayList<NotificationRecord> mNotificationList =
@@ -223,6 +223,8 @@ public class NotificationManagerService extends INotificationManager.Stub
     private static final String ATTR_NAME = "name";
 
     private final ArrayList<NotificationScorer> mScorers = new ArrayList<NotificationScorer>();
+
+	private ExtendedNotificationCollection mExNotificationCollection;
 
     private class NotificationListenerInfo implements DeathRecipient {
         INotificationListener listener;
@@ -1111,14 +1113,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 
-    class ExtendedNotificationInfo {
-        public int color;
-        public int onMS;
-        public int offMS;
-		public String sound;
-		public String vibrate;
-    }
-
     private StatusBarManagerService.NotificationCallbacks mNotificationCallbacks
             = new StatusBarManagerService.NotificationCallbacks() {
 
@@ -1379,15 +1373,6 @@ public class NotificationManagerService extends INotificationManager.Stub
                     Settings.System.NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_OFF, mDefaultNotificationLedOff,
                     UserHandle.USER_CURRENT);
 
-            // LED custom notification colors
-            mNotificationPulseCustomexnInfo.clear();
-            if (Settings.System.getIntForUser(resolver,
-                    Settings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE, 0,
-                    UserHandle.USER_CURRENT) != 0) {
-                parseNotificationPulseCustomValuesString(Settings.System.getStringForUser(resolver,
-                        Settings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES, UserHandle.USER_CURRENT));
-            }
-
             if (uri == null || ENABLED_NOTIFICATION_LISTENERS_URI.equals(uri)) {
                 rebindListenerServices();
             }
@@ -1504,14 +1489,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                 VIBRATE_PATTERN_MAXLEN,
                 DEFAULT_VIBRATE_PATTERN);
 
-        mNotificationPulseCustomexnInfo = new HashMap<String, ExtendedNotificationInfo>();
-
-        mPackageNameMappings = new HashMap<String, String>();
-        for (String mapping : resources.getStringArray(
-                 com.android.internal.R.array.notification_light_package_mapping)) {
-            String[] map = mapping.split("\\|");
-            mPackageNameMappings.put(map[0], map[1]);
-        }
+		mExNotificationCollection = new ExtendedNotificationCollection(mContext);
 
         // Don't start allowing notifications until the setup wizard has run once.
         // After that, including subsequent boots, init with notifications turned on.
@@ -2037,7 +2015,7 @@ public class NotificationManagerService extends INotificationManager.Stub
 						
 						
                         // sound
-                        final ExtendedNotificationInfo exnInfo = getexnInfoForNotification(r);
+                        final ExtendedNotification exnInfo = mExNotificationCollection.getExtendedNotification(r);
 
                         // should we use the default notification sound? (indicated either by
                         // DEFAULT_SOUND or because notification.sound is pointing at
@@ -2469,7 +2447,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             mNotificationLight.turnOff();
         } else if (mNotificationPulseEnabled) {
             final Notification ledno = mLedNotification.sbn.getNotification();
-            final ExtendedNotificationInfo exnInfo = getexnInfoForNotification(mLedNotification);
+            final ExtendedNotification exnInfo = mExNotificationCollection.getExtendedNotification(mLedNotification);
             int ledARGB = ledno.ledARGB;
             int ledOnMS = ledno.ledOnMS;
             int ledOffMS = ledno.ledOffMS;
@@ -2488,57 +2466,6 @@ public class NotificationManagerService extends INotificationManager.Stub
             mNotificationLight.setFlashing(ledARGB, LightsService.LIGHT_FLASH_TIMED,
                     ledOnMS, ledOffMS);
         }
-    }
-
-    private void parseNotificationPulseCustomValuesString(String customexnInfoString) {
-        if (TextUtils.isEmpty(customexnInfoString)) {
-            return;
-        }
-
-        for (String packageValuesString : customexnInfoString.split("\\|")) {
-            String[] packageValues = packageValuesString.split("=");
-            if (packageValues.length != 2) {
-                Log.e(TAG, "Error parsing custom led values for unknown package");
-                continue;
-            }
-            String packageName = packageValues[0];
-            String[] values = packageValues[1].split(";");
-            if (values.length < 3) {
-                Log.e(TAG, "Error parsing custom led values '"
-                        + packageValues[1] + "' for " + packageName);
-                continue;
-            }
-            ExtendedNotificationInfo exnInfo = new ExtendedNotificationInfo();
-            try {
-                exnInfo.color = Integer.parseInt(values[0]);
-                exnInfo.onMS = Integer.parseInt(values[1]);
-                exnInfo.offMS = Integer.parseInt(values[2]);
-				if (values.length == 5) {
-				    exnInfo.sound = values[3];
-					exnInfo.vibrate = values[4];
-				} else {
-				    exnInfo.sound = "";
-				    exnInfo.vibrate = "";
-				}			
-            } catch (Exception e) {
-                Log.e(TAG, "Error parsing custom led values '"
-                        + packageValues[1] + "' for " + packageName);
-                continue;
-            }
-            mNotificationPulseCustomexnInfo.put(packageName, exnInfo);
-        }
-    }
-
-    private ExtendedNotificationInfo getexnInfoForNotification(NotificationRecord ledNotification) {
-        final String packageName = ledNotification.sbn.getPackageName();
-        return mNotificationPulseCustomexnInfo.get(mapPackage(packageName));
-    }
-
-    private String mapPackage(String pkg) {
-        if(!mPackageNameMappings.containsKey(pkg)) {
-            return pkg;
-        }
-        return mPackageNameMappings.get(pkg);
     }
 
     // lock on mNotificationList
