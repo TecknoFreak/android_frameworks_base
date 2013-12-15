@@ -60,6 +60,7 @@ public class BatteryMeterView extends View implements DemoMode {
     public static final int BATTERY_STYLE_CIRCLE_PERCENT        = 4;
     public static final int BATTERY_STYLE_DOTTED_CIRCLE         = 5;
     public static final int BATTERY_STYLE_DOTTED_CIRCLE_PERCENT = 6;
+	public static final int BATTERY_STYLE_HIDE                  = 7;
 
     public static final int FULL = 96;
     public static final int EMPTY = 4;
