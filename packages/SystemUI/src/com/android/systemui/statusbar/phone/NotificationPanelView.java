@@ -31,7 +31,7 @@ import com.android.systemui.R;
 import com.android.systemui.statusbar.GestureRecorder;
 
 public class NotificationPanelView extends PanelView {
-    public static final boolean DEBUG_GESTURES = true;
+    public static final boolean DEBUG_GESTURES = false;
 
     Drawable mHandleBar;
     int mHandleBarHeight;
