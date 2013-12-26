@@ -3052,6 +3052,7 @@ public final class Settings {
         public static final String QUIET_HOURS_END = "quiet_hours_end";
 
         /**
+
          * Whether to remove the sound from outgoing notifications during quiet hours.
          * @hide
          */
@@ -3092,6 +3093,12 @@ public final class Settings {
 	public static final String NON_INTRUSIVE_INCALL = "non_intrusive_incall";	
 				
 	/**
+         * Quick settings tiles to show on status bar
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_TILES = "quick_settings_tiles";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
