@@ -485,6 +485,9 @@ public class SearchPanelView extends FrameLayout implements
         if (action.equals(ButtonsConstants.ACTION_IME))
             return new TargetDrawable(
                 mResources, mResources.getDrawable(R.drawable.ic_action_ime_switcher));
+        if (action.equals(ButtonsConstants.ACTION_IMMERSIVE_MODE))
+            return new TargetDrawable(
+                mResources, R.drawable.ic_action_immersive_mode);
         if (action.equals(ButtonsConstants.ACTION_VIB))
             return new TargetDrawable(
                 mResources, mResources.getDrawable(R.drawable.ic_action_vib));
