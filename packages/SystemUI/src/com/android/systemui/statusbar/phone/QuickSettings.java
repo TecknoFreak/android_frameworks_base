@@ -72,6 +72,7 @@ import android.widget.TextView;
 
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.BatteryCircleMeterView;
+import com.android.internal.util.omni.OmniTorchConstants;
 import com.android.internal.app.MediaRouteDialogPresenter;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsModel.ActivityState;
@@ -113,13 +114,14 @@ class QuickSettings {
         AIRPLANE,
         SLEEP,
         SYNC,
-        USBMODE
+        USBMODE,	
+	TORCH
     }
 
     public static final String NO_TILES = "NO_TILES";
     public static final String DELIMITER = ";";
     public static final String DEFAULT_TILES = Tile.USER + DELIMITER + Tile.BRIGHTNESS
-        + DELIMITER + Tile.SETTINGS + DELIMITER + Tile.WIFI
+        + DELIMITER + Tile.SETTINGS + DELIMITER + Tile.WIFI + DELIMITER + Tile.TORCH
         + DELIMITER + Tile.RSSI + DELIMITER + Tile.BLUETOOTH + DELIMITER + Tile.VOLUME
         + DELIMITER + Tile.BATTERY + DELIMITER + Tile.ROTATION+ DELIMITER + Tile.IMMERSIVE
         + DELIMITER + Tile.LOCATION + DELIMITER + Tile.AIRPLANE
@@ -759,6 +761,27 @@ class QuickSettings {
                   });
                   parent.addView(usbModeTile);
                   if (addMissing) usbModeTile.setVisibility(View.GONE);
+               } else if (Tile.TORCH.toString().equals(tile.toString())) { // torch tile
+                  // Torch
+                  final QuickSettingsBasicTile torchTile
+                        = new QuickSettingsBasicTile(mContext);
+                  torchTile.setTileId(Tile.TORCH);
+                  torchTile.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            startSettingsActivity(OmniTorchConstants.INTENT_LAUNCH_APP);
+                            return true;
+                        }
+                  });
+                  mModel.addTorchTile(torchTile, new QuickSettingsModel.RefreshCallback() {
+                        @Override
+                        public void refreshView(QuickSettingsTileView unused, State state) {
+                            torchTile.setImageResource(state.iconId);
+                            torchTile.setText(state.label);
+                        }
+                  });
+                  parent.addView(torchTile);
+                  if (addMissing) torchTile.setVisibility(View.GONE);
                } else if (Tile.SYNC.toString().equals(tile.toString())) { // sync tile
                   // sync
                   final QuickSettingsBasicTile SyncTile

@@ -73,6 +73,8 @@
 
     <string name="quick_settings_ringer_on">Sound on</string>
     <string name="quick_settings_ringer_off">Sound off</string>
+    <string name="quick_settings_quiethours_label">Quiet hours</string>	
+    <string name="quick_settings_quiethours_off_label">Quiet hours off</string>
     <string name="quick_settings_vibration_on">Vibration on</string>
     <string name="quick_settings_vibration_off">Vibration off</string>
     <string name="quick_settings_ringer_normal">Sound</string>

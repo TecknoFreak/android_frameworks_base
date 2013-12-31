@@ -50,6 +50,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
 
 import com.android.internal.telephony.Phone;
+import com.android.internal.util.omni.OmniTorchConstants;
 import com.android.systemui.R;
 import com.android.systemui.settings.BrightnessController.BrightnessStateChangeCallback;
 import com.android.systemui.settings.CurrentUserTracker;
@@ -176,6 +177,15 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         }
     };
 
+    /** Broadcast receive to determine torch. */
+    private BroadcastReceiver mTorchIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mTorchActive = intent.getIntExtra(OmniTorchConstants.EXTRA_CURRENT_STATE, 0) != 0;
+            onTorchChanged();
+        }
+    };
+
     /** Broadcast receive to determine ringer. */
     private BroadcastReceiver mRingerIntentReceiver = new BroadcastReceiver() {
         @Override
@@ -299,6 +309,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
     private boolean mUsbTethered = false;
     private boolean mUsbConnected = false;
     private boolean mMassStorageActive = false;
+    private boolean mTorchActive = false;
     private String[] mUsbRegexs;
     private Object mSyncObserverHandle = null;
 
@@ -347,6 +358,10 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
     private QuickSettingsTileView mUsbModeTile;
     private RefreshCallback mUsbModeCallback;
     private State mUsbModeState = new State();
+
+    private QuickSettingsTileView mTorchTile;
+    private RefreshCallback mTorchCallback;
+    private State mTorchState = new State();
 
     private QuickSettingsTileView mWifiTile;
     private QuickSettingsTileView mWifiBackTile;
@@ -469,6 +484,10 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         ringerIntentFilter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
         context.registerReceiver(mRingerIntentReceiver, ringerIntentFilter);
 
+        IntentFilter torchIntentFilter = new IntentFilter();
+        torchIntentFilter.addAction(OmniTorchConstants.ACTION_STATE_CHANGED);
+        context.registerReceiver(mTorchIntentReceiver, torchIntentFilter);
+
         if(mSyncObserverHandle != null) {
             //Unregistering sync state listener
             ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
@@ -580,6 +599,32 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
             mUsbModeState.enabled = false;
         }
         mUsbModeCallback.refreshView(mUsbModeTile, mUsbModeState);
+    }
+
+    // Torch Mode
+    void addTorchTile(QuickSettingsTileView view, RefreshCallback cb) {
+        mTorchTile = view;
+        mTorchTile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(OmniTorchConstants.ACTION_TOGGLE_STATE);
+                mContext.sendBroadcast(i);
+            }
+        });
+        mTorchCallback = cb;
+        onTorchChanged();
+    }
+
+    void onTorchChanged() {
+        if (mTorchActive) {
+            mTorchState.iconId = R.drawable.ic_qs_torch_on;
+            mTorchState.label = mContext.getString(R.string.quick_settings_torch);
+        } else {
+            mTorchState.iconId = R.drawable.ic_qs_torch_off;
+            mTorchState.label = mContext.getString(R.string.quick_settings_torch_off);
+        }
+        mTorchState.enabled = mTorchActive;
+        mTorchCallback.refreshView(mTorchTile, mTorchState);
     }
 
     // Airplane Mode
