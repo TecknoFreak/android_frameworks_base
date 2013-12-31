@@ -52,7 +52,6 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Profile;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.security.KeyChain;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
@@ -541,23 +540,11 @@ class QuickSettings {
                     inflater.inflate(R.layout.quick_settings_tile, parent, false);
             rssiTile.setContent(R.layout.quick_settings_tile_rssi, inflater);
             rssiTile.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
-                    boolean currentState = cm.getMobileDataEnabled();
-                    cm.setMobileDataEnabled(!currentState);
+                    startSettingsActivity(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
                 }
             });
-
-            if (LONG_PRESS_TOGGLES) {
-                rssiTile.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                    startSettingsActivity(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
-                    return true;
-                    }
-                });
-            }
             mModel.addRSSITile(rssiTile, new NetworkActivityCallback() {
                 @Override
                 public void refreshView(QuickSettingsTileView view, State state) {
