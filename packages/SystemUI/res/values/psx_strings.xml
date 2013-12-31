@@ -59,8 +59,5 @@
     <!-- Description of an application permission that lets lets an application access the ThemeManagerService -->
     <string name="permdesc_accessThemeService">Allows an application to set/reset themes. Not for use by normal applications.</string>
 
-    <!-- Torch tile -->
-    <string name="quick_settings_torch_label">Torch</string>
-
 </resources>
 
