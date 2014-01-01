@@ -115,6 +115,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasTelephony;
     private boolean mHasVibrator;
     private final boolean mShowSilentToggle;
+
+    private static final String AUTO_START = "AUTO_START";
+    private static final String TOGGLE_FLASHLIGHT = "TOGGLE_FLASHLIGHT";	
 	
     /**
      * @param context everything needs a context :(
@@ -322,8 +325,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         mItems.add(
                                 new SinglePressAction(R.drawable.ic_qs_torch_on, R.string.global_action_torch) {
                                         public void onPress() {
-                                            Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
-                                            mContext.sendBroadcast(i);			
+                                            Intent intent = new Intent(TOGGLE_FLASHLIGHT);
+											intent.putExtra(AUTO_START, true);
+                                            mContext.sendBroadcast(intent);			
                                         }
 
                                         public boolean showDuringKeyguard() {
