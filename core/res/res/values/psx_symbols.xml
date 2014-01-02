@@ -69,4 +69,7 @@
   <java-symbol type="drawable" name="ic_lockscreen_unlock_activated" />
   <java-symbol type="drawable" name="ic_lockscreen_unlock_normal" />
 
+  <!-- Config IME switcher -->
+  <java-symbol type="bool" name="config_show_IMESwitcher" />
+
 </resources>
