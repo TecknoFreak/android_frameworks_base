@@ -1963,7 +1963,6 @@ public class NotificationManagerService extends INotificationManager.Stub
 						
 						
                         // sound
-                        final ExtendedNotification exnInfo = mExNotificationCollection.getExtendedNotification(r);
 
                         // should we use the default notification sound? (indicated either by
                         // DEFAULT_SOUND or because notification.sound is pointing at
@@ -1990,13 +1989,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                             soundUri = notification.sound;
                             hasValidSound = (soundUri != null);
                         }
-                                                    if (exnInfo !=null) {
-                                                        if (exnInfo.sound !="") {
-                                                            soundUri = Uri.parse(exnInfo.sound);
-                                                                    hasValidSound = (soundUri != null);
-                                                            }
-                                                      }
-                                                }
+
                         if (hasValidSound) {
                             boolean looping = (notification.flags & Notification.FLAG_INSISTENT) != 0;
                             int audioStreamType;
@@ -2039,42 +2032,33 @@ public class NotificationManagerService extends INotificationManager.Stub
                         final boolean useDefaultVibrate =
                                 (notification.defaults & Notification.DEFAULT_VIBRATE) != 0;
 
-                                                boolean doVibrate = true;
-                                                        if (exnInfo !=null) {
-                                                         if (exnInfo.vibrate == "(false)") {
-                                                                 doVibrate = false;
-                                                                }
-                                                        }
-                                        
-                                                if (doVibrate == true) {
                         if (!(QuietHoursHelper.inQuietHours(
-                                    mContext, Settings.System.QUIET_HOURS_MUTE))
-                                    && (useDefaultVibrate || convertSoundToVibration || hasCustomVibrate)
-                                    && !(audioManager.getRingerMode()
-                                            == AudioManager.RINGER_MODE_SILENT)) {
-                                mVibrateNotification = r;
+                                    mContext, Settings.System.QUIET_HOURS_STILL))
+                                && (useDefaultVibrate || convertSoundToVibration || hasCustomVibrate)
+                                && !(audioManager.getRingerMode()
+                                        == AudioManager.RINGER_MODE_SILENT)) {
+                            mVibrateNotification = r;
 
-                                if (useDefaultVibrate || convertSoundToVibration) {
-                                    // Escalate privileges so we can use the vibrator even if the
-                                    // notifying app does not have the VIBRATE permission.
-                                    long identity = Binder.clearCallingIdentity();
-                                    try {
-                                        mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
-                                            useDefaultVibrate ? mDefaultVibrationPattern
-                                                : mFallbackVibrationPattern,
-                                            ((notification.flags & Notification.FLAG_INSISTENT) != 0)
-                                                    ? 0: -1);
-                                    } finally {
-                                        Binder.restoreCallingIdentity(identity);
-                                    }
-                                } else if (notification.vibrate.length > 1) {
-                                    // If you want your own vibration pattern, you need the VIBRATE
-                                    // permission
+                            if (useDefaultVibrate || convertSoundToVibration) {
+                                // Escalate privileges so we can use the vibrator even if the
+                                // notifying app does not have the VIBRATE permission.
+                                long identity = Binder.clearCallingIdentity();
+                                try {
                                     mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
-                                            notification.vibrate,
+                                        useDefaultVibrate ? mDefaultVibrationPattern
+                                            : mFallbackVibrationPattern,
                                         ((notification.flags & Notification.FLAG_INSISTENT) != 0)
                                                 ? 0: -1);
-                                                                }
+                                } finally {
+                                    Binder.restoreCallingIdentity(identity);
+                                }
+                            } else if (notification.vibrate.length > 1) {
+                                // If you want your own vibration pattern, you need the VIBRATE
+                                // permission
+                                mVibrator.vibrate(r.sbn.getUid(), r.sbn.getBasePkg(),
+                                        notification.vibrate,
+                                    ((notification.flags & Notification.FLAG_INSISTENT) != 0)
+                                            ? 0: -1);
                             }
                         }
                     }
@@ -2086,8 +2070,8 @@ public class NotificationManagerService extends INotificationManager.Stub
                         mLedNotification = null;
                     }
                     //Slog.i(TAG, "notification.lights="
-                    //        + ((old.notification.lights.flags & Notification.FLAG_SHOW_LIGHTS)
-                    //                  != 0));
+                    // + ((old.notification.lights.flags & Notification.FLAG_SHOW_LIGHTS)
+                    // != 0));
                     if ((notification.flags & Notification.FLAG_SHOW_LIGHTS) != 0
                             && canInterrupt) {
                         mLights.add(r);
@@ -2103,55 +2087,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         });
 
         idOut[0] = id;
-    }
-
-<<<<<<< HEAD
-    private boolean inQuietHours() {
-        if (mQuietHoursEnabled) {
-
-            if (mQuietHoursStart == mQuietHoursEnd) {
-                // Skip calendar calculations.  24 hours - togglable
-                return true;
-            }
-
-            // Get the date in "quiet hours" format.
-            Calendar calendar = Calendar.getInstance();
-            int minutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
-            if (mQuietHoursEnd < mQuietHoursStart) {
-                // Starts at night, ends in the morning.
-                return (minutes > mQuietHoursStart) || (minutes < mQuietHoursEnd);
-            } else {
-                return (minutes > mQuietHoursStart) && (minutes < mQuietHoursEnd);
-            }
-        }
-        return false;
-=======
-    private boolean notificationIsAnnoying(String pkg) {
-        final long annoyingNotificationThreshold = Settings.System.getLongForUser(
-                mContext.getContentResolver(),
-                Settings.System.MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD, 0,
-                UserHandle.USER_CURRENT_OR_SELF);
-
-        if (annoyingNotificationThreshold == 0) {
-            return false;
-        }
-
-        if("android".equals(pkg)) {
-            return false;
-        }
-
-        long currentTime = System.currentTimeMillis();
-        if (mAnnoyingNotifications.containsKey(pkg)
-                && (currentTime - mAnnoyingNotifications.get(pkg)
-                        < annoyingNotificationThreshold)) {
-            // less than threshold; it's an annoying notification!!
-            return true;
-        } else {
-            // not in map or time to re-add
-            mAnnoyingNotifications.put(pkg, currentTime);
-            return false;
-        }
->>>>>>> e4bbeb0... fb: refactor QuietHours code
     }
 
     private void sendAccessibilityEvent(Notification notification, CharSequence packageName) {
