@@ -879,7 +879,7 @@ public class InputMethodService extends AbstractInputMethodService {
      * is currently running in fullscreen mode.
      */
     public void updateFullscreenMode() {
-        boolean isFullscreen = false;
+        boolean isFullscreen = mShowInputRequested && onEvaluateFullscreenMode();
         boolean changed = mLastShowInputRequested != mShowInputRequested;
         if (mIsFullscreen != isFullscreen || !mFullscreenApplied) {
             changed = true;
