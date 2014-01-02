@@ -3109,6 +3109,12 @@ public final class Settings {
         public static final String QUIET_HOURS_STILL = "quiet_hours_still";
 
         /**
+         * Whether to disable battery warning during quiet hours.
+         * @hide
+         */
+        public static final String QUIET_HOURS_BATTERY = "quiet_hours_battery";
+
+        /**
          * Whether to attempt to dim the LED color during quiet hours.
          * @hide
          */
