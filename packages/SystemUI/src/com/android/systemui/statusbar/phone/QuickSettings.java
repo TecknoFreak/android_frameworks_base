@@ -712,6 +712,27 @@ class QuickSettings {
                   });
                   parent.addView(mBatteryTile);
                   if (addMissing) mBatteryTile.setVisibility(View.GONE);
+               } else if (Tile.IMMERSIVE.toString().equals(tile.toString())) { // Immersive tile
+                  // Immersive mode
+                  final QuickSettingsBasicTile immersiveTile
+                       = new QuickSettingsBasicTile(mContext);
+                  immersiveTile.setTileId(Tile.IMMERSIVE);
+                  immersiveTile.setImageResource(R.drawable.ic_qs_immersive_off);
+                  immersiveTile.setTextResource(R.string.quick_settings_immersive_mode_off_label);
+                  immersiveTile.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View v) {
+                           collapsePanels();
+                           boolean checkModeOn = Settings.System.getInt(mContext
+                                  .getContentResolver(), Settings.System.GLOBAL_IMMERSIVE_MODE_STATE, 0) == 1;
+                           Settings.System.putInt(mContext.getContentResolver(),
+                                 Settings.System.GLOBAL_IMMERSIVE_MODE_STATE, checkModeOn ? 0 : 1);
+                      }
+                  });
+                  mModel.addImmersiveTile(immersiveTile,
+                        new QuickSettingsModel.BasicRefreshCallback(immersiveTile));
+                  parent.addView(immersiveTile);
+                  if (addMissing) immersiveTile.setVisibility(View.GONE);
                } else if (Tile.AIRPLANE.toString().equals(tile.toString())) { // airplane tile
                   // Airplane Mode
                   final QuickSettingsBasicTile airplaneTile

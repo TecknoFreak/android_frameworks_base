@@ -273,6 +273,26 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         }
     }
 
+    /** ContentObserver to watch immersive **/
+    private class ImmersiveObserver extends ContentObserver {
+        public ImmersiveObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            onImmersiveChanged();
+        }
+
+        public void startObserving() {
+            final ContentResolver cr = mContext.getContentResolver();
+            cr.unregisterContentObserver(this);
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.GLOBAL_IMMERSIVE_MODE_STATE),
+                    false, this, mUserTracker.getCurrentUserId());
+        }
+    }
+
     /** Callback for changes to remote display routes. */
     private class RemoteDisplayRouteCallback extends MediaRouter.SimpleCallback {
         @Override
@@ -303,6 +323,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
     private final NextAlarmObserver mNextAlarmObserver;
     private final BugreportObserver mBugreportObserver;
     private final BrightnessObserver mBrightnessObserver;
+    private final ImmersiveObserver mImmersiveObserver;
     private final RingerObserver mRingerObserver;
 
     private ConnectivityManager mCM;
@@ -442,6 +463,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
             @Override
             public void onUserSwitched(int newUserId) {
                 mBrightnessObserver.startObserving();
+                mImmersiveObserver.startObserving();
                 refreshRotationLockTile();
                 onBrightnessLevelChanged();
                 onNextAlarmChanged();
@@ -458,6 +480,8 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         mBugreportObserver.startObserving();
         mBrightnessObserver = new BrightnessObserver(mHandler);
         mBrightnessObserver.startObserving();
+        mImmersiveObserver = new ImmersiveObserver(mHandler);	
+	mImmersiveObserver.startObserving();
         mRingerObserver = new RingerObserver(mHandler);
         mRingerObserver.startObserving();
 
@@ -508,6 +532,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         refreshBatteryTile();
         refreshBluetoothTile();
         refreshBrightnessTile();
+        refreshImmersiveTile();
         refreshRotationLockTile();
         refreshRssiTile();
         refreshLocationTile();
@@ -1217,6 +1242,31 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
     }
     void refreshBrightnessTile() {
         onBrightnessLevelChanged();
+    }
+
+    // Immersive
+    void addImmersiveTile(QuickSettingsTileView view, RefreshCallback cb) {
+        mImmersiveTile = view;
+        mImmersiveCallback = cb;
+        onImmersiveChanged();
+    }
+
+    private void onImmersiveChanged() {
+        Resources r = mContext.getResources();
+        int mode = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.GLOBAL_IMMERSIVE_MODE_STATE, 0,
+                mUserTracker.getCurrentUserId());
+        mImmersiveState.isEnabled = (mode == 1);
+        mImmersiveState.iconId = mImmersiveState.isEnabled
+                ? R.drawable.ic_qs_immersive_on
+                : R.drawable.ic_qs_immersive_off;
+        mImmersiveState.label = mImmersiveState.isEnabled
+                ? r.getString(R.string.quick_settings_immersive_mode_label)
+                : r.getString(R.string.quick_settings_immersive_mode_off_label);
+        mImmersiveCallback.refreshView(mImmersiveTile, mImmersiveState);
+    }
+    void refreshImmersiveTile() {
+        onImmersiveChanged();
     }
 
     // SSL CA Cert warning.
