@@ -289,7 +289,7 @@ public class ActiveDisplayView extends FrameLayout {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACTIVE_DISPLAY_THRESHOLD), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.IMMERSIVE_MODE), false, this);
+                    Settings.System.GLOBAL_IMMERSIVE_MODE_STATE), false, this);
             update();
         }
 
@@ -335,7 +335,7 @@ public class ActiveDisplayView extends FrameLayout {
             mProximityThreshold = Settings.System.getLong(
                     resolver, Settings.System.ACTIVE_DISPLAY_THRESHOLD, 8000L);
             mForceImmersiveMode = Settings.System.getInt(
-                    resolver, Settings.System.IMMERSIVE_MODE, 0) == 1;
+                    resolver, Settings.System.GLOBAL_IMMERSIVE_MODE_STATE, 0) == 1;
 
             createExcludedAppsSet(excludedApps);
 
