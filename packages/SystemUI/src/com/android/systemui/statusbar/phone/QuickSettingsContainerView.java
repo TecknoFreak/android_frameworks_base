@@ -23,11 +23,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.android.systemui.R;
@@ -50,6 +53,8 @@ class QuickSettingsContainerView extends FrameLayout {
 
     private Context mContext;
     private Resources mResources;
+
+    private boolean mFirstStartUp = true;
 
     // Default layout transition
     private LayoutTransition mLayoutTransition;
@@ -95,7 +100,7 @@ class QuickSettingsContainerView extends FrameLayout {
             View v = getChildAt(i);
             if(v instanceof QuickSettingsTileView) {
                 QuickSettingsTileView qs = (QuickSettingsTileView) v;
-                if (i < 3) { // Modify span of the first three childs
+                if (i < 3 && getTilesSize() < 10 + i) { // Modify span of the first three childs
                     int span = r.getInteger(R.integer.quick_settings_user_time_settings_tile_span);
                     qs.setColumnSpan(span);
                 } else {
@@ -158,6 +163,10 @@ class QuickSettingsContainerView extends FrameLayout {
         int y = getPaddingTop();
         int cursor = 0;
 
+        // onMeasure is done onLayout called last time isLandscape()
+        // so first bootup is done, set it to false
+        mFirstStartUp = false;
+
         for (int i = 0; i < N; ++i) {
             QuickSettingsTileView child = (QuickSettingsTileView) getChildAt(i);
             ViewGroup.LayoutParams lp = child.getLayoutParams();
@@ -212,14 +221,31 @@ class QuickSettingsContainerView extends FrameLayout {
     }
 
     private boolean shouldUpdateColumns() {
-        return updateColumns && !isLandscape();
+        return (getTilesSize() > 12) && !isLandscape();
     }
 
     private boolean isLandscape() {
-        final boolean isLandscape =
-            Resources.getSystem().getConfiguration().orientation
+        if (mFirstStartUp) {
+            WindowManager wm =
+                  ((WindowManager) mContext.getSystemService(mContext.WINDOW_SERVICE));
+            Display display = wm.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            return size.x > size.y;
+        } else {
+            return Resources.getSystem().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
-        return isLandscape;
+        }
+    }
+
+    private int getTilesSize() {
+        String tileContainer = Settings.System.getString(mContext.getContentResolver(),
+                Settings.System.QUICK_SETTINGS_TILES);
+        if (tileContainer == null) {
+            tileContainer = QuickSettings.DEFAULT_TILES;
+        }
+        String[] storedTiles = tileContainer.split(QuickSettings.DELIMITER);
+        return storedTiles.length;
     }
 
     private int getTileTextSize() {
@@ -231,6 +257,11 @@ class QuickSettingsContainerView extends FrameLayout {
             default:
                 return mResources.getDimensionPixelSize(R.dimen.qs_3_column_text_size);
         }
+    }
+
+    public void resetAllTiles() {
+        Settings.System.putString(mContext.getContentResolver(),
+                   Settings.System.QUICK_SETTINGS_TILES, QuickSettings.DEFAULT_TILES);
     }
 
     public void setEditModeEnabled(boolean enabled) {
@@ -260,11 +291,6 @@ class QuickSettingsContainerView extends FrameLayout {
             } else { // No tiles
                 Settings.System.putString(resolver,
                         Settings.System.QUICK_SETTINGS_TILES, QuickSettings.NO_TILES);
-            }
-            if (tiles.size() > 12) {
-                updateColumns = true;
-            } else if (tiles.size() < 12) {
-                updateColumns = false;
             }
             updateSpan();
         }
