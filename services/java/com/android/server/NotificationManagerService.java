@@ -1370,6 +1370,10 @@ public class NotificationManagerService extends INotificationManager.Stub
             mNotificationPulseEnabled = Settings.System.getIntForUser(resolver,
                     Settings.System.NOTIFICATION_LIGHT_PULSE, 0, UserHandle.USER_CURRENT) != 0;
 
+            mAnnoyingNotificationThreshold = Settings.System.getLongForUser(resolver,
+                    Settings.System.MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD, 0,
+                    UserHandle.USER_CURRENT_OR_SELF);
+
             // LED default color
             mDefaultNotificationColor = Settings.System.getIntForUser(resolver,
                     Settings.System.NOTIFICATION_LIGHT_PULSE_DEFAULT_COLOR, mDefaultNotificationColor,
