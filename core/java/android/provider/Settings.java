@@ -2610,7 +2610,6 @@ public final class Settings {
         public static final String QUIET_HOURS_START = "quiet_hours_start";
 
         /**
-         * Quick settings tiles to show on status bar
          * Sets when quiet hours end. This is stored in minutes from the start of the day.
          * @hide
          */
@@ -2758,6 +2757,8 @@ public final class Settings {
          * Immersive mode global actions switch
          * 0 = no
          * 1 = yes
+         * 2 = hide navigation bar
+         * 3 = hide status bar
          * @hide
          */
         public static final String IMMERSIVE_MODE = "immersive_mode";
