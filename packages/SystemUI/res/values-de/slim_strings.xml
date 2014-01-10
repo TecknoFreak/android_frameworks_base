@@ -19,7 +19,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- QS Battery Tile -->
-    <string name="quick_settings_battery_charging">Läd</string>
-    <string name="quick_settings_battery_discharging">Entläd</string>
+    <string name="quick_settings_battery_charging">Lädt</string>
+    <string name="quick_settings_battery_discharging">Entlädt</string>
 
 </resources>
