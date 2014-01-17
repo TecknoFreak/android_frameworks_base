@@ -2292,7 +2292,6 @@ public final class Settings {
          * @hide
          */
         public static final String NOTIFICATION_LIGHT_PULSE = "notification_light_pulse";
-
         /**
          * What color to use for the notification LED by default
          * @hide
@@ -2304,7 +2303,6 @@ public final class Settings {
          * @hide
          */
         public static final String NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_ON = "notification_light_pulse_default_led_on";
-
         /**
          * How long to wait between flashes for the notification LED by default
          * @hide
@@ -2629,34 +2627,35 @@ public final class Settings {
         public static final String POWERMENU_SHUTDOWN_PREFS = "powermenu_shutdown_prefs";
 
         /**
-        * When to show Shutdown in Powermenu
+        * When to show Airplanemode in Powermenu
         * @hide
         */
         public static final String POWERMENU_AIRPLANEMODE_PREFS = "powermenu_airplanemode_prefs";
 
         /**
-        * When to show Shutdown in Powermenu
+        * When to show Silentmode in Powermenu
         * @hide
         */
         public static final String POWERMENU_SILENTMODE_PREFS = "powermenu_silentmode_prefs";
 
         /**
-        * When to show Shutdown in Powermenu
+        * When to show UserSwitch in Powermenu
         * @hide
         */
         public static final String POWERMENU_USERSWITCH_PREFS = "powermenu_userswitch_prefs";
 
         /**
-        * When to show Shutdown in Powermenu
+        * When to show Screenshot in Powermenu
         * @hide
         */
         public static final String POWERMENU_SCREENSHOT_PREFS = "powermenu_screenshot_prefs";
 
         /**
-        * When to show Shutdown in Powermenu
+        * When to show Torch in Powermenu
         * @hide
         */
         public static final String POWERMENU_TORCH_PREFS = "powermenu_torch_prefs";
+		
 		
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -2730,6 +2729,32 @@ public final class Settings {
             QUIET_HOURS_MUTE,
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
+			MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD,
+		    STATUS_BAR_NATIVE_BATTERY_PERCENTAGE,
+			NAVIGATION_BAR_HEIGHT,
+			POWERMENU_REBOOT_PREFS,
+			POWERMENU_SHUTDOWN_PREFS,
+			POWERMENU_AIRPLANEMODE_PREFS,
+			POWERMENU_SILENTMODE_PREFS,
+			POWERMENU_USERSWITCH_PREFS,
+			POWERMENU_SCREENSHOT_PREFS,
+			POWERMENU_TORCH_PREFS,
+			NOTIFICATION_LIGHT_PULSE_DEFAULT_COLOR,
+			NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_ON,
+			NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_OFF,
+			NOTIFICATION_LIGHT_PULSE_CALL_COLOR,
+			NOTIFICATION_LIGHT_PULSE_CALL_LED_ON,
+			NOTIFICATION_LIGHT_PULSE_CALL_LED_OFF,
+			NOTIFICATION_LIGHT_PULSE_VMAIL_COLOR,
+			NOTIFICATION_LIGHT_PULSE_VMAIL_LED_ON,
+			NOTIFICATION_LIGHT_PULSE_VMAIL_LED_OFF,
+			NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE,
+			NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES,
+			BATTERY_LIGHT_ENABLED,
+			BATTERY_LIGHT_PULSE,
+			BATTERY_LIGHT_LOW_COLOR,
+			BATTERY_LIGHT_MEDIUM_COLOR,
+			BATTERY_LIGHT_FULL_COLOR
         };
 
         // Settings moved to Settings.Secure
