@@ -2656,6 +2656,15 @@ public final class Settings {
         */
         public static final String POWERMENU_TORCH_PREFS = "powermenu_torch_prefs";
 		
+        /**
+        * Kernel - force fastcharge if possible will be initialized on boot_complete
+		* 0 = Not Supported
+		* 1 = Supported and on
+		* 2 = Supported and off
+        * @hide
+        */
+        public static final String KERNEL_FORCE_FASTCHARGE = "kernel_force_fastcharge";
+	
 		
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -2754,7 +2763,8 @@ public final class Settings {
 			BATTERY_LIGHT_PULSE,
 			BATTERY_LIGHT_LOW_COLOR,
 			BATTERY_LIGHT_MEDIUM_COLOR,
-			BATTERY_LIGHT_FULL_COLOR
+			BATTERY_LIGHT_FULL_COLOR,
+			KERNEL_FORCE_FASTCHARGE
         };
 
         // Settings moved to Settings.Secure
