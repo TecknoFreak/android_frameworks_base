@@ -2664,7 +2664,31 @@ public final class Settings {
         * @hide
         */
         public static final String KERNEL_FORCE_FASTCHARGE = "kernel_force_fastcharge";
-	
+		
+        /**
+        * Kernel - selected Governor (empty if no gov selected or not supported)
+        * @hide
+		*/
+		public static final String KERNEL_GOVERNOR = "kernel_governor";
+
+        /**
+        * Kernel - Min CPU Frequency or empty if not supported
+        * @hide
+		*/
+		public static final String KERNEL_CPU_FREQUENCY_MIN = "kernel_cpu_frequency_min";
+
+        /**
+        * Kernel - Max CPU Frequency or empty if not supported
+        * @hide
+		*/
+		public static final String KERNEL_CPU_FREQUENCY_MAX = "kernel_cpu_frequency_max";
+		
+        /**
+        * Kernel - Apply CPU frequencies on boot
+        * @hide
+		*/
+		public static final String KERNEL_CPU_FREQUENCY_APPLY = "kernel_cpu_frequency_apply";
+		
 		
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -2765,6 +2789,9 @@ public final class Settings {
 			BATTERY_LIGHT_MEDIUM_COLOR,
 			BATTERY_LIGHT_FULL_COLOR,
 			KERNEL_FORCE_FASTCHARGE,
+			KERNEL_GOVERNOR,
+			KERNEL_CPU_FREQUENCY_MIN,
+			KERNEL_CPU_FREQUENCY_MAX,
 			AUTO_BRIGHTNESS_LUX,
 			AUTO_BRIGHTNESS_BACKLIGHT,
 			AUTO_BRIGHTNESS_RESPONSIVENESS,
