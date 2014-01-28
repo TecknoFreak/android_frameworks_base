@@ -2001,6 +2001,7 @@ public final class Settings {
         public static final String NOTIFICATIONS_USE_RING_VOLUME =
             "notifications_use_ring_volume";
 
+
         /**
          * Whether silent mode should allow vibration feedback. This is used
          * internally in AudioService and the Sound settings activity to
@@ -2697,6 +2698,12 @@ public final class Settings {
         * @hide
         */
         public static final String SWIPE_FOR_QS = "swipe_for_qs";
+
+        /**
+         * Whether to enable the built-in safe media volume for headsets
+         * @hide
+         */
+        public static final String MANUAL_SAFE_MEDIA_VOLUME = "manual_safe_media_volume";
         
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -2805,7 +2812,8 @@ public final class Settings {
             AUTO_BRIGHTNESS_RESPONSIVENESS,
             AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT,
             EXPANDED_BRIGHTNESS_MODE,
-            SWIPE_FOR_QS            
+            SWIPE_FOR_QS,
+            MANUAL_SAFE_MEDIA_VOLUME            
         };
 
         // Settings moved to Settings.Secure
