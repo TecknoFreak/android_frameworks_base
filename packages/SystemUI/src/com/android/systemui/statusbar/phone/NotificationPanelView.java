@@ -18,8 +18,13 @@ package com.android.systemui.statusbar.phone;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.ContentResolver;
+import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.EventLog;
 import android.view.MotionEvent;
@@ -39,11 +44,42 @@ public class NotificationPanelView extends PanelView {
     private int mFingers;
     private PhoneStatusBar mStatusBar;
     private boolean mOkToFlip;
-    private static final float mQuickPullDownPercentage = 0.8f;
-
+    private static final float mQuickPullDownRightPercentage = 0.85f;
+    private static final float mQuickPullDownLeftPercentage = 0.15f;
+	private int PullDownSwipeOption;
+	private ContentResolver mResolver;
+	private Context mContext;
+	
     public NotificationPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
+		mContext = context;
+        mResolver = mContext.getContentResolver();
+		SettingsObserver mSettingsObserver = new SettingsObserver(new Handler());
+		mSettingsObserver.observe();
     }
+	
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            // Observe all users' changes
+            mResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SWIPE_FOR_QS), false, this,
+                    UserHandle.USER_ALL);
+            updateSettings();
+        }
+
+        @Override public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    protected void updateSettings() {
+	    PullDownSwipeOption = Settings.System.getInt(mResolver,
+                    Settings.System.SWIPE_FOR_QS, 0);
+	}
 
     public void setStatusBar(PhoneStatusBar bar) {
         mStatusBar = bar;
@@ -115,9 +151,15 @@ public class NotificationPanelView extends PanelView {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     mOkToFlip = getExpandedHeight() == 0;
-                    if (event.getX(0) > getWidth() * mQuickPullDownPercentage) {
-                        flip = true;
-                    }
+					if (PullDownSwipeOption == 1) {
+                        if (event.getX(0) > getWidth() * mQuickPullDownRightPercentage) {
+                            flip = true;
+                        }
+					} else if (PullDownSwipeOption == 2) {
+                        if (event.getX(0) < getWidth() * mQuickPullDownLeftPercentage) {
+                            flip = true;
+                        }				
+					}
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     flip = true;

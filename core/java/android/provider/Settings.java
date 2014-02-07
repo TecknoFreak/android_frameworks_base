@@ -1870,7 +1870,7 @@ public final class Settings {
          */
         public static final String AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT = "auto_brightness_twilight_adjustment";
 
-		/**
+        /**
         * Notification Power Widget - Custom Brightness Mode
         * @hide
         */
@@ -2655,41 +2655,49 @@ public final class Settings {
         * @hide
         */
         public static final String POWERMENU_TORCH_PREFS = "powermenu_torch_prefs";
-		
+        
         /**
         * Kernel - force fastcharge if possible will be initialized on boot_complete
-		* 0 = Not Supported
-		* 1 = Supported and on
-		* 2 = Supported and off
+        * 0 = Not Supported
+        * 1 = Supported and on
+        * 2 = Supported and off
         * @hide
         */
         public static final String KERNEL_FORCE_FASTCHARGE = "kernel_force_fastcharge";
-		
+        
         /**
         * Kernel - selected Governor (empty if no gov selected or not supported)
         * @hide
-		*/
-		public static final String KERNEL_GOVERNOR = "kernel_governor";
+        */
+        public static final String KERNEL_GOVERNOR = "kernel_governor";
 
         /**
         * Kernel - Min CPU Frequency or empty if not supported
         * @hide
-		*/
-		public static final String KERNEL_CPU_FREQUENCY_MIN = "kernel_cpu_frequency_min";
+        */
+        public static final String KERNEL_CPU_FREQUENCY_MIN = "kernel_cpu_frequency_min";
 
         /**
         * Kernel - Max CPU Frequency or empty if not supported
         * @hide
-		*/
-		public static final String KERNEL_CPU_FREQUENCY_MAX = "kernel_cpu_frequency_max";
-		
+        */
+        public static final String KERNEL_CPU_FREQUENCY_MAX = "kernel_cpu_frequency_max";
+        
         /**
         * Kernel - Apply CPU frequencies on boot
         * @hide
-		*/
-		public static final String KERNEL_CPU_FREQUENCY_APPLY = "kernel_cpu_frequency_apply";
-		
-		
+        */
+        public static final String KERNEL_CPU_FREQUENCY_APPLY = "kernel_cpu_frequency_apply";
+        
+        /**
+        * swipe to Quicksettings on statusbar
+        * 0 - Off
+        * 1 - Right
+        * 2 - Left
+        * @hide
+        */
+        public static final String SWIPE_FOR_QS = "swipe_for_qs";
+        
         /** 
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
@@ -2762,41 +2770,42 @@ public final class Settings {
             QUIET_HOURS_MUTE,
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
-			MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD,
-		    STATUS_BAR_NATIVE_BATTERY_PERCENTAGE,
-			NAVIGATION_BAR_HEIGHT,
-			POWERMENU_REBOOT_PREFS,
-			POWERMENU_SHUTDOWN_PREFS,
-			POWERMENU_AIRPLANEMODE_PREFS,
-			POWERMENU_SILENTMODE_PREFS,
-			POWERMENU_USERSWITCH_PREFS,
-			POWERMENU_SCREENSHOT_PREFS,
-			POWERMENU_TORCH_PREFS,
-			NOTIFICATION_LIGHT_PULSE_DEFAULT_COLOR,
-			NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_ON,
-			NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_OFF,
-			NOTIFICATION_LIGHT_PULSE_CALL_COLOR,
-			NOTIFICATION_LIGHT_PULSE_CALL_LED_ON,
-			NOTIFICATION_LIGHT_PULSE_CALL_LED_OFF,
-			NOTIFICATION_LIGHT_PULSE_VMAIL_COLOR,
-			NOTIFICATION_LIGHT_PULSE_VMAIL_LED_ON,
-			NOTIFICATION_LIGHT_PULSE_VMAIL_LED_OFF,
-			NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE,
-			NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES,
-			BATTERY_LIGHT_ENABLED,
-			BATTERY_LIGHT_PULSE,
-			BATTERY_LIGHT_LOW_COLOR,
-			BATTERY_LIGHT_MEDIUM_COLOR,
-			BATTERY_LIGHT_FULL_COLOR,
-			KERNEL_FORCE_FASTCHARGE,
-			KERNEL_GOVERNOR,
-			KERNEL_CPU_FREQUENCY_MIN,
-			KERNEL_CPU_FREQUENCY_MAX,
-			AUTO_BRIGHTNESS_LUX,
-			AUTO_BRIGHTNESS_BACKLIGHT,
-			AUTO_BRIGHTNESS_RESPONSIVENESS,
-			AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT,
-			EXPANDED_BRIGHTNESS_MODE			
+            MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD,
+            STATUS_BAR_NATIVE_BATTERY_PERCENTAGE,
+            NAVIGATION_BAR_HEIGHT,
+            POWERMENU_REBOOT_PREFS,
+            POWERMENU_SHUTDOWN_PREFS,
+            POWERMENU_AIRPLANEMODE_PREFS,
+            POWERMENU_SILENTMODE_PREFS,
+            POWERMENU_USERSWITCH_PREFS,
+            POWERMENU_SCREENSHOT_PREFS,
+            POWERMENU_TORCH_PREFS,
+            NOTIFICATION_LIGHT_PULSE_DEFAULT_COLOR,
+            NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_ON,
+            NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_OFF,
+            NOTIFICATION_LIGHT_PULSE_CALL_COLOR,
+            NOTIFICATION_LIGHT_PULSE_CALL_LED_ON,
+            NOTIFICATION_LIGHT_PULSE_CALL_LED_OFF,
+            NOTIFICATION_LIGHT_PULSE_VMAIL_COLOR,
+            NOTIFICATION_LIGHT_PULSE_VMAIL_LED_ON,
+            NOTIFICATION_LIGHT_PULSE_VMAIL_LED_OFF,
+            NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE,
+            NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES,
+            BATTERY_LIGHT_ENABLED,
+            BATTERY_LIGHT_PULSE,
+            BATTERY_LIGHT_LOW_COLOR,
+            BATTERY_LIGHT_MEDIUM_COLOR,
+            BATTERY_LIGHT_FULL_COLOR,
+            KERNEL_FORCE_FASTCHARGE,
+            KERNEL_GOVERNOR,
+            KERNEL_CPU_FREQUENCY_MIN,
+            KERNEL_CPU_FREQUENCY_MAX,
+            AUTO_BRIGHTNESS_LUX,
+            AUTO_BRIGHTNESS_BACKLIGHT,
+            AUTO_BRIGHTNESS_RESPONSIVENESS,
+            AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT,
+            EXPANDED_BRIGHTNESS_MODE,
+            SWIPE_FOR_QS            
         };
 
         // Settings moved to Settings.Secure
