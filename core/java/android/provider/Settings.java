@@ -2764,6 +2764,12 @@ public final class Settings {
         public static final String IMMERSIVE_MODE = "immersive_mode";
 
         /**
+         * Store last immersive state to persist through reboot
+         * @hide
+         */
+        public static final String IMMERSIVE_LAST_ACTIVE_STATE = "immersive_last_active_state";	
+		
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2877,7 +2883,8 @@ public final class Settings {
             MANUAL_SAFE_MEDIA_VOLUME,
             VOLUME_LINK_NOTIFICATION,
             MODE_VOLUME_OVERLAY,
-            IMMERSIVE_MODE			
+            IMMERSIVE_MODE,
+			IMMERSIVE_LAST_ACTIVE_STATE
         };
 
         // Settings moved to Settings.Secure
