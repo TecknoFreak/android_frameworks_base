@@ -115,6 +115,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasTelephony;
     private boolean mHasVibrator;
     private final boolean mShowSilentToggle;
+
+    private static final String AUTO_START = "AUTO_START";
+    private static final String TOGGLE_FLASHLIGHT = "TOGGLE_FLASHLIGHT";		
 	
     /**
      * @param context everything needs a context :(
@@ -322,8 +325,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         mItems.add(
                                 new SinglePressAction(R.drawable.ic_qs_torch_on, R.string.global_action_torch) {
                                         public void onPress() {
-                                            Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
-                                            mContext.sendBroadcast(i);			
+                                            Intent intent = new Intent(TOGGLE_FLASHLIGHT);
+											intent.putExtra(AUTO_START, true);
+                                            mContext.sendBroadcast(intent);
                                         }
 
                                         public boolean showDuringKeyguard() {
@@ -334,16 +338,16 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                                                 return true;
                                         }
             });
-        	
+            
         }
 
         // next: airplane mode
         Integer showPowermenuAirplaneMode =Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWERMENU_AIRPLANEMODE_PREFS, 2);
-        if ((showPowermenuAirplaneMode == 2) || (showPowermenuAirplaneMode == 1 && mKeyguardShowing == false)) { 		
+        if ((showPowermenuAirplaneMode == 2) || (showPowermenuAirplaneMode == 1 && mKeyguardShowing == false)) {         
             mItems.add(mAirplaneModeOn);
         }
-		
+        
         // next: bug report, if enabled
         if (Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.BUGREPORT_IN_POWER_MENU, 0) != 0 && isCurrentUserOwner()) {
@@ -396,7 +400,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         // last: silent mode
         Integer showSilentMode =Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWERMENU_SILENTMODE_PREFS, 2);
-        if ((showSilentMode == 2) || (showSilentMode == 1 && mKeyguardShowing == false)) { 		
+        if ((showSilentMode == 2) || (showSilentMode == 1 && mKeyguardShowing == false)) {         
             if (mShowSilentToggle) {
                 mItems.add(mSilentModeAction);
             }
@@ -405,7 +409,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         // one more thing: optionally add a list of users to switch to
         Integer showUserSwitch =Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWERMENU_USERSWITCH_PREFS, 2);
-        if ((showUserSwitch == 2) || (showUserSwitch == 1 && mKeyguardShowing == false)) { 		
+        if ((showUserSwitch == 2) || (showUserSwitch == 1 && mKeyguardShowing == false)) {         
             if (SystemProperties.getBoolean("fw.power_user_switcher", false)) {
                 addUsersToMenu(mItems);
             }
